@@ -697,11 +697,11 @@
                 _fragstreamloader.addEventListener(ProgressEvent.PROGRESS, _fragLoadProgressHandler);
                 _fragstreamloader.addEventListener(HTTPStatusEvent.HTTP_STATUS, _fragLoadHTTPStatusHandler);
                 _fragstreamloader.addEventListener(Event.COMPLETE, _fragLoadCompleteHandler);
-                _keystreamloader = (new urlStreamClass()) as URLStream;
-                _keystreamloader.addEventListener(IOErrorEvent.IO_ERROR, _keyLoadErrorHandler);
-                _keystreamloader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _keyLoadErrorHandler);
-                _keystreamloader.addEventListener(HTTPStatusEvent.HTTP_STATUS, _keyLoadHTTPStatusHandler);
-                _keystreamloader.addEventListener(Event.COMPLETE, _keyLoadCompleteHandler);
+//                _keystreamloader = (new urlStreamClass()) as URLStream;
+//                _keystreamloader.addEventListener(IOErrorEvent.IO_ERROR, _keyLoadErrorHandler);
+//                _keystreamloader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _keyLoadErrorHandler);
+//                _keystreamloader.addEventListener(HTTPStatusEvent.HTTP_STATUS, _keyLoadHTTPStatusHandler);
+//                _keystreamloader.addEventListener(Event.COMPLETE, _keyLoadCompleteHandler);
             }
             if (_hasDiscontinuity || _switchlevel) {
                 _demux = null;
