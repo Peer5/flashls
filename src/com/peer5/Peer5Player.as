@@ -7,19 +7,33 @@ package com.peer5 {
     import flash.geom.Rectangle;
     import flash.system.Security;
 
+    import org.mangui.hls.event.HLSEvent;
     import org.mangui.chromeless.ChromelessPlayer;
     import com.peer5.Peer5URLStream;
     import com.peer5.PlaybackIdHolder;
 
     public class Peer5Player extends ChromelessPlayer {
         private var idHolder:PlaybackIdHolder;
+        private var _timeHandlerCalled:Number = 0;
 
         public function Peer5Player() {
             super();
+            Security.allowDomain("*");
+            Security.allowInsecureDomain("*");
             ExternalInterface.call("console.log", "Peer5 Player (0.0.1)");
             idHolder = PlaybackIdHolder.getInstance();
             idHolder.playbackId = LoaderInfo(this.root.loaderInfo).parameters.playbackId;
+            setTimeout(flashReady, 50);
         }
+
+        private function _triggerEvent(eventName: String, param:String=null):void {
+            var event:String = idHolder.playbackId + ":" + eventName;
+            ExternalInterface.call('Clappr.Mediator.trigger', event, param);
+        };
+
+        protected function flashReady(): void {
+            _triggerEvent('flashready');
+        };
 
         override protected function _setupExternalGetters():void {
             ExternalInterface.addCallback("globoGetDuration", _getDuration);
@@ -56,5 +70,37 @@ package com.peer5 {
             super._onStageVideoState(event);
             _hls.URLstream = Peer5URLStream as Class;
         }
+
+        override protected function _stateHandler(event : HLSEvent) : void {
+            _triggerEvent('playbackstate', event.state);
+        };
+
+        override protected function _mediaTimeHandler(event : HLSEvent) : void {
+            _duration = event.mediatime.duration;
+            _media_position = event.mediatime.position;
+            _timeHandlerCalled += 1;
+
+            var videoWidth : int = _video ? _video.videoWidth : _stageVideo.videoWidth;
+            var videoHeight : int = _video ? _video.videoHeight : _stageVideo.videoHeight;
+
+            if (videoWidth && videoHeight) {
+                var changed : Boolean = _videoWidth != videoWidth || _videoHeight != videoHeight;
+                if (changed) {
+                    _videoHeight = videoHeight;
+                    _videoWidth = videoWidth;
+                    _resize();
+                    if (videoHeight >= 720) {
+                        _triggerEvent('highdefinition', "true");
+                    } else {
+                        _triggerEvent('highdefinition', "false");
+                    }
+                }
+            }
+            if (_timeHandlerCalled == 10) {
+                _triggerEvent('timeupdate', _duration + "," + _hls.position);
+                _timeHandlerCalled = 0;
+            }
+        };
+
     }
 }
