@@ -21,7 +21,7 @@ package org.mangui.chromeless {
 
     public class JSURLStream extends URLStream {
         private var _connected : Boolean;
-        private var _resource : ByteArray = new ByteArray();
+        protected var _resource : ByteArray = new ByteArray();
         /** Timer for decode packets **/
         private var _timer : Timer;
         /** read position **/
@@ -40,9 +40,6 @@ package org.mangui.chromeless {
             if (ExternalInterface.available) {
                 _id = _instance_count;
                 _instance_count++;
-                CONFIG::LOGGING {
-                Log.info("add callback resourceLoaded");
-                }
                 ExternalInterface.addCallback("resourceLoaded" + _id, resourceLoaded);
                 ExternalInterface.addCallback("resourceLoadingError" + _id, resourceLoadingError);
             }
@@ -88,9 +85,6 @@ package org.mangui.chromeless {
         }
 
         protected function resourceLoaded(base64Resource : String) : void {
-            CONFIG::LOGGING {
-            Log.info("resourceLoaded");
-            }           
             _resource = new ByteArray();
             _read_position = 0;
             _timer = new Timer(0, 0);
@@ -108,9 +102,6 @@ package org.mangui.chromeless {
         }
 
         protected function resourceLoadingSuccess() : void {
-            CONFIG::LOGGING {
-            Log.info("resourceLoaded and decoded");
-            }
 	     _timer.stop();
 	     _resource.position = 0;
 	     this.dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, _resource.bytesAvailable, _resource.bytesAvailable));

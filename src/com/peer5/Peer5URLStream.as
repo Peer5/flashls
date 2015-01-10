@@ -35,6 +35,10 @@ package com.peer5 {
             super.resourceLoadingSuccess();
             _triggerEvent("decodesuccess");
         }
+
+        public function resourceAsString():String {
+            return _resource.toString();
+        }
     }
 }
 
