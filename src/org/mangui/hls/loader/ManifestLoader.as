@@ -14,6 +14,8 @@
     import org.mangui.hls.HLS;
     import org.mangui.hls.HLSSettings;
 
+    import com.peer5.Peer5URLStream;
+
     import flash.events.*;
     import flash.net.*;
     import flash.utils.*;
@@ -28,7 +30,7 @@
         /** levels vector. **/
         private var _levels : Vector.<Level>;
         /** Object that fetches the manifest. **/
-        private var _urlloader : URLLoader;
+        private var _urlloader : Peer5URLStream;
         /** Link to the M3U8 file. **/
         private var _url : String;
         /** are all playlists filled ? **/
@@ -57,7 +59,7 @@
             _hls.addEventListener(HLSEvent.PLAYBACK_STATE, _stateHandler);
             _hls.addEventListener(HLSEvent.LEVEL_SWITCH, _levelSwitchHandler);
             _levels = new Vector.<Level>();
-            _urlloader = new URLLoader();
+            _urlloader = new Peer5URLStream();
             _urlloader.addEventListener(Event.COMPLETE, _loaderHandler);
             _urlloader.addEventListener(IOErrorEvent.IO_ERROR, _errorHandler);
             _urlloader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _errorHandler);
@@ -135,11 +137,7 @@
 
         /** Manifest loaded; check and parse it **/
         private function _loaderHandler(event : Event) : void {
-            // successful loading, reset retry counter
-            _retry_timeout = 1000;
-            _retry_count = 0;
-            var loader : URLLoader = URLLoader(event.target);
-            _parseManifest(String(loader.data));
+            _parseManifest(_urlloader.resourceAsString());
         };
 
         /** parse a playlist **/
