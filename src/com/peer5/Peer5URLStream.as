@@ -1,4 +1,4 @@
-package tv.bem {
+package com.peer5 {
     import flash.net.URLRequest;
     import flash.events.Event;
     import flash.external.ExternalInterface;

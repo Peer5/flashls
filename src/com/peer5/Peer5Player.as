@@ -1,4 +1,4 @@
-package tv.bem {
+package com.peer5 {
     import flash.external.ExternalInterface;
     import flash.display.*;
     import flash.utils.setTimeout;
