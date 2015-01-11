@@ -691,7 +691,7 @@
                     return;
                 }
                 var urlStreamClass : Class = _hls.URLstream as Class;
-                _fragstreamloader = (new urlStreamClass()) as URLStream;
+                _fragstreamloader = (new urlStreamClass("chunk")) as URLStream;
                 _fragstreamloader.addEventListener(IOErrorEvent.IO_ERROR, _fragLoadErrorHandler);
                 _fragstreamloader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _fragLoadErrorHandler);
                 _fragstreamloader.addEventListener(ProgressEvent.PROGRESS, _fragLoadProgressHandler);

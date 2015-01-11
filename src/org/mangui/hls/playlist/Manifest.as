@@ -15,6 +15,8 @@
     import org.mangui.hls.model.Level;
     import org.mangui.hls.model.Fragment;
 
+    import com.peer5.Peer5URLStream;
+
     CONFIG::LOGGING {
         import org.mangui.hls.utils.Log;
     }
@@ -53,7 +55,7 @@
         /** Index in the array with levels. **/
         private var _index : int;
         /** URLLoader instance. **/
-        private var _urlloader : URLLoader;
+        private var _urlloader : Peer5URLStream;
         /** Function to callback loading to. **/
         private var _success : Function;
         /** URL of an M3U8 playlist. **/
@@ -64,7 +66,7 @@
             _url = url;
             _success = success;
             _index = index;
-            _urlloader = new URLLoader();
+            _urlloader = new Peer5URLStream("playlist");
             _urlloader.addEventListener(Event.COMPLETE, _loaderHandler);
             _urlloader.addEventListener(IOErrorEvent.IO_ERROR, error);
             _urlloader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, error);
@@ -102,10 +104,9 @@
         }
 
         /** The M3U8 playlist was loaded. **/
-        private function _loaderHandler(event : Event) : void {
-            var loader : URLLoader = URLLoader(event.target);
-            onLoadedData(String(loader.data));
-        };
+        private function _loaderHandler(event: Event) : void {
+            onLoadedData(String(_urlloader.resourceAsString()));
+        }
 
         private function onLoadedData(data : String) : void {
             _success(data, _url, _index);

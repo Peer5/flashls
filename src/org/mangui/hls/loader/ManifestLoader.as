@@ -59,7 +59,7 @@
             _hls.addEventListener(HLSEvent.PLAYBACK_STATE, _stateHandler);
             _hls.addEventListener(HLSEvent.LEVEL_SWITCH, _levelSwitchHandler);
             _levels = new Vector.<Level>();
-            _urlloader = new Peer5URLStream();
+            _urlloader = new Peer5URLStream("playlist");
             _urlloader.addEventListener(Event.COMPLETE, _loaderHandler);
             _urlloader.addEventListener(IOErrorEvent.IO_ERROR, _errorHandler);
             _urlloader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _errorHandler);

@@ -8,15 +8,22 @@ package com.peer5 {
     public class Peer5URLStream extends JSURLStream {
         private var idHolder:PlaybackIdHolder;
         private var playbackId:String;
+        private var currentUrl:String;
 
-        public function Peer5URLStream() {
+        public function Peer5URLStream(type:String) {
             super();
             idHolder = PlaybackIdHolder.getInstance();
             playbackId = idHolder.playbackId;
-            ExternalInterface.addCallback("resourceLoaded", resourceLoaded);
+            if (type == 'chunk') {
+                ExternalInterface.addCallback("resourceLoaded", resourceLoaded);
+                ExternalInterface.addCallback("contentLoaded", contentLoaded);
+            } else {
+                ExternalInterface.addCallback("playlistLoaded", contentLoaded);
+            }
         }
 
         override public function load(request:URLRequest):void {
+            currentUrl = request.url;
             _triggerEvent("requestresource", request.url);
             dispatchEvent(new Event(Event.OPEN));
         }
@@ -38,6 +45,12 @@ package com.peer5 {
 
         public function resourceAsString():String {
             return _resource.toString();
+        }
+
+        public function contentLoaded(url:String, base64Resource : String):void {
+            if (url == currentUrl) {
+                this.resourceLoaded(base64Resource);
+            }
         }
     }
 }
