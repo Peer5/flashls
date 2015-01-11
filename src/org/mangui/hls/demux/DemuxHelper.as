@@ -26,7 +26,7 @@
              * if ts_match && codec_avc  => TS demuxer
              * if aac_match && codec_aac => AAC demuxer
              * if mp3_match && codec_mp3 => MP3 demuxer
-             * if no codec info in Manifest, use fallback order : AAC/MP3/TS
+             * if no codec info in Manifest, use fallback order : MP3/AAC/TS
              */
             if (ts_match && level.codec_h264) {
                 CONFIG::LOGGING {
@@ -43,10 +43,10 @@
                     Log.debug("MP3 match + MP3 signaled in Manifest, use MP3 demuxer");
                 }
                 return new MP3Demuxer(audioselect, progress, complete);
-            } else if (aac_match) {
-                return new AACDemuxer(audioselect, progress, complete);
             } else if (mp3_match) {
                 return new MP3Demuxer(audioselect, progress, complete);
+            } else if (aac_match) {
+                return new AACDemuxer(audioselect, progress, complete);
             } else if (ts_match) {
                 return new TSDemuxer(displayObject, audioselect, progress, complete, videometadata);
             } else {

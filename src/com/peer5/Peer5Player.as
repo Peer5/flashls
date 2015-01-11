@@ -20,7 +20,7 @@ package com.peer5 {
             super();
             Security.allowDomain("*");
             Security.allowInsecureDomain("*");
-            ExternalInterface.call("console.log", "Peer5 Player (0.0.2)");
+            ExternalInterface.call("console.log", "Peer5 Player (0.0.3)");
             idHolder = PlaybackIdHolder.getInstance();
             idHolder.playbackId = LoaderInfo(this.root.loaderInfo).parameters.playbackId;
             setTimeout(flashReady, 50);
