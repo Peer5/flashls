@@ -16,6 +16,7 @@ package com.peer5 {
             playbackId = idHolder.playbackId;
             if (type == 'chunk') {
                 ExternalInterface.addCallback("resourceLoaded", resourceLoaded);
+                ExternalInterface.addCallback("resourceLoadingError", resourceLoadingError);
                 ExternalInterface.addCallback("contentLoaded", contentLoaded);
             } else {
                 ExternalInterface.addCallback("playlistLoaded", contentLoaded);
