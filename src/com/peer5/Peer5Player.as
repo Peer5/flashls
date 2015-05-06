@@ -20,7 +20,7 @@ package com.peer5 {
             super();
             Security.allowDomain("*");
             Security.allowInsecureDomain("*");
-            ExternalInterface.call("console.log", "Peer5 Player (0.0.4)");
+            ExternalInterface.call("console.log", "Peer5 Player (0.0.5)");
             idHolder = PlaybackIdHolder.getInstance();
             idHolder.playbackId = LoaderInfo(this.root.loaderInfo).parameters.playbackId;
             setTimeout(flashReady, 50);
@@ -29,11 +29,11 @@ package com.peer5 {
         private function _triggerEvent(eventName: String, param:String=null):void {
             var event:String = idHolder.playbackId + ":" + eventName;
             ExternalInterface.call('Clappr.Mediator.trigger', event, param);
-        };
+        }
 
         protected function flashReady(): void {
             _triggerEvent('flashready');
-        };
+        }
 
         override protected function _setupExternalGetters():void {
             ExternalInterface.addCallback("globoGetDuration", _getDuration);
@@ -73,7 +73,7 @@ package com.peer5 {
 
         override protected function _stateHandler(event : HLSEvent) : void {
             _triggerEvent('playbackstate', event.state);
-        };
+        }
 
         override protected function _mediaTimeHandler(event : HLSEvent) : void {
             _duration = event.mediatime.duration;
@@ -100,7 +100,6 @@ package com.peer5 {
                 _triggerEvent('timeupdate', _duration + "," + _hls.position);
                 _timeHandlerCalled = 0;
             }
-        };
-
+        }
     }
 }
