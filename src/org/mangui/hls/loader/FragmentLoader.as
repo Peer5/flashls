@@ -242,7 +242,7 @@
         public function seek(position : Number, callback : Function) : void {
             // reset IO Error when seeking
             _frag_retry_count = _key_retry_count = 0;
-            _frag_retry_timeout = _key_retry_timeout = 1000;
+            _frag_retry_timeout = _key_retry_timeout = 100;
             _loading_state = LOADING_IDLE;
             _tags_callback = callback;
             _seek_pos = position;
@@ -263,7 +263,7 @@
             if ( _keystreamloader.bytesAvailable == 16 ) {
                 // load complete, reset retry counter
                 _key_retry_count = 0;
-                _key_retry_timeout = 1000;
+                _key_retry_timeout = 100;
                 var keyData : ByteArray = new ByteArray();
                 _keystreamloader.readBytes(keyData, 0, 0);
                 _keymap[_frag_current.decrypt_url] = keyData;
@@ -395,7 +395,7 @@
         private function _fragLoadCompleteHandler(event : Event) : void {
             // load complete, reset retry counter
             _frag_retry_count = 0;
-            _frag_retry_timeout = 1000;
+            _frag_retry_timeout = 100;
             var fragData : FragmentData = _frag_current.data;
             if (fragData.bytes == null) {
                 CONFIG::LOGGING {
