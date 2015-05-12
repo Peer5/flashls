@@ -97,7 +97,9 @@ package org.mangui.chromeless {
             CONFIG::LOGGING {
             Log.info("resourceLoadingError");
             }
-            _timer.stop();
+            if (_timer !== null && _timer.running) {
+                _timer.stop();
+            }
             this.dispatchEvent(new IOErrorEvent(IOErrorEvent.IO_ERROR));
         }
 
