@@ -79,7 +79,7 @@ package org.mangui.hls {
          *      0, means no retry, error will be triggered automatically
          *     -1 means infinite retry
          */
-        public static var fragmentLoadMaxRetry : int = 0;
+        public static var fragmentLoadMaxRetry : int = 1;
 
         /** fragmentLoadMaxRetryTimeout
 
