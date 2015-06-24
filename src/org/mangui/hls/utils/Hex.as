@@ -7,6 +7,7 @@
  * See LICENSE.txt for full license information.
  */
 package org.mangui.hls.utils {
+
     import flash.utils.ByteArray;
 
     public class Hex {
@@ -17,12 +18,14 @@ package org.mangui.hls.utils {
          * The first nibble (hex digit) may be omitted.
          * Any whitespace characters are ignored.
          */
-        public static function toArray(hex : String) : ByteArray {
+        public static function toArray(hex:String):ByteArray {
             hex = hex.replace(/^0x|\s|:/gm, '');
-            var a : ByteArray = new ByteArray;
-            var len : uint = hex.length;
-            if ((len & 1) == 1) hex = "0" + hex;
-            for (var i : uint = 0; i < len; i += 2) {
+            var a:ByteArray = new ByteArray;
+            var len:uint = hex.length;
+            if ((len & 1) == 1) {
+                hex = "0" + hex;
+            }
+            for (var i:uint = 0; i < len; i += 2) {
                 a[i / 2] = parseInt(hex.substr(i, 2), 16);
             }
             return a;
@@ -31,13 +34,15 @@ package org.mangui.hls.utils {
         /**
          * Generates lowercase hexadecimal string from given byte-array
          */
-        public static function fromArray(array : ByteArray, colons : Boolean = false) : String {
-            var s : String = "";
-            var len : uint = array.length;
-            for (var i : uint = 0; i < len; i++) {
+        public static function fromArray(array:ByteArray, colons:Boolean = false):String {
+            var s:String = "";
+            var len:uint = array.length;
+            for (var i:uint = 0; i < len; i++) {
                 s += ("0" + array[i].toString(16)).substr(-2, 2);
                 if (colons) {
-                    if (i < len - 1) s += ":";
+                    if (i < len - 1) {
+                        s += ":";
+                    }
                 }
             }
             return s;

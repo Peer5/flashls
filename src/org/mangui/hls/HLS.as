@@ -10,6 +10,7 @@ package org.mangui.hls {
     import flash.net.NetStream;
     import flash.net.URLLoader;
     import flash.net.URLStream;
+
     import org.mangui.hls.controller.AudioTrackController;
     import org.mangui.hls.controller.LevelController;
     import org.mangui.hls.event.HLSEvent;
@@ -28,23 +29,23 @@ package org.mangui.hls {
     }
     /** Class that manages the streaming process. **/
     public class HLS extends EventDispatcher {
-        private var _levelLoader : LevelLoader;
-        private var _altAudioLevelLoader : AltAudioLevelLoader;
-        private var _audioTrackController : AudioTrackController;
-        private var _levelController : LevelController;
-        private var _streamBuffer : StreamBuffer;
-        private var _statsHandler : StatsHandler;
+        private var _levelLoader:LevelLoader;
+        private var _altAudioLevelLoader:AltAudioLevelLoader;
+        private var _audioTrackController:AudioTrackController;
+        private var _levelController:LevelController;
+        private var _streamBuffer:StreamBuffer;
+        private var _statsHandler:StatsHandler;
         /** HLS NetStream **/
-        private var _hlsNetStream : HLSNetStream;
+        private var _hlsNetStream:HLSNetStream;
         /** HLS URLStream/URLLoader **/
-        private var _hlsURLStream : Class;
-        private var _hlsURLLoader : Class;
-        private var _client : Object = {};
-        private var _stage : Stage;
+        private var _hlsURLStream:Class;
+        private var _hlsURLLoader:Class;
+        private var _client:Object = {};
+        private var _stage:Stage;
         /* level handling */
-        private var _level : int;
+        private var _level:int;
         /* overrided quality_manual_level level */
-        private var _manual_level : int = -1;
+        private var _manual_level:int = -1;
 
         /** Create and connect all components. **/
         public function HLS() {
@@ -57,14 +58,14 @@ package org.mangui.hls {
             _hlsURLStream = URLStream as Class;
             _hlsURLLoader = URLLoader as Class;
             // default loader
-            var connection : NetConnection = new NetConnection();
+            var connection:NetConnection = new NetConnection();
             connection.connect(null);
             _hlsNetStream = new HLSNetStream(connection, this, _streamBuffer);
             this.addEventListener(HLSEvent.LEVEL_SWITCH, _levelSwitchHandler);
-        };
+        }
 
         /** Forward internal errors. **/
-        override public function dispatchEvent(event : Event) : Boolean {
+        override public function dispatchEvent(event:Event):Boolean {
             if (event.type == HLSEvent.ERROR) {
                 CONFIG::LOGGING {
                     Log.error((event as HLSEvent).error);
@@ -72,13 +73,13 @@ package org.mangui.hls {
                 _hlsNetStream.close();
             }
             return super.dispatchEvent(event);
-        };
+        }
 
-        private function _levelSwitchHandler(event : HLSEvent) : void {
+        private function _levelSwitchHandler(event:HLSEvent):void {
             _level = event.level;
-        };
+        }
 
-        public function dispose() : void {
+        public function dispose():void {
             this.removeEventListener(HLSEvent.LEVEL_SWITCH, _levelSwitchHandler);
             _levelLoader.dispose();
             _altAudioLevelLoader.dispose();
@@ -98,175 +99,176 @@ package org.mangui.hls {
         }
 
         /** Return index of first quality level referenced in Manifest  **/
-        public function get firstLevel() : int {
+        public function get firstLevel():int {
             return _levelController.firstLevel;
-        };
+        }
 
         /** Return the quality level used when starting a fresh playback **/
-        public function get startLevel() : int {
+        public function get startLevel():int {
             return _levelController.startLevel;
-        };
+        }
 
         /*  set the quality level used when starting a fresh playback */
-        public function set startLevel(level : int) : void {
+        public function set startLevel(level:int):void {
             _levelController.startLevel = level;
-        };
+        }
 
         /** Return the quality level used after a seek operation **/
-        public function get seekLevel() : int {
+        public function get seekLevel():int {
             return _levelController.seekLevel;
-        };
+        }
 
         /** Return the quality level of the currently played fragment **/
-        public function get currentLevel() : int {
+        public function get currentLevel():int {
             return _hlsNetStream.currentLevel;
-        };
+        }
 
         /** Return the quality level of the next played fragment **/
-        public function get nextLevel() : int {
+        public function get nextLevel():int {
             return _streamBuffer.nextLevel;
-        };
+        }
 
         /** Return the quality level of last loaded fragment **/
-        public function get loadLevel() : int {
+        public function get loadLevel():int {
             return _level;
-        };
+        }
 
         /*  instant quality level switch (-1 for automatic level selection) */
-        public function set currentLevel(level : int) : void {
+        public function set currentLevel(level:int):void {
             _manual_level = level;
             _streamBuffer.flushBuffer();
             _hlsNetStream.seek(position);
-        };
+        }
 
         /*  set quality level for next loaded fragment (-1 for automatic level selection) */
-        public function set nextLevel(level : int) : void {
+        public function set nextLevel(level:int):void {
             _manual_level = level;
             _streamBuffer.nextLevel = level;
-        };
+        }
 
         /*  set quality level for last loaded fragment (-1 for automatic level selection) */
-        public function set loadLevel(level : int) : void {
+        public function set loadLevel(level:int):void {
             _manual_level = level;
-        };
+        }
 
         /* check if we are in automatic level selection mode */
-        public function get autoLevel() : Boolean {
+        public function get autoLevel():Boolean {
             return (_manual_level == -1);
-        };
+        }
 
         /* return manual level */
-        public function get manualLevel() : int {
+        public function get manualLevel():int {
             return _manual_level;
-        };
+        }
 
         /** Return the capping/max level value that could be used by automatic level selection algorithm **/
-        public function get autoLevelCapping() : int {
+        public function get autoLevelCapping():int {
             return _levelController.autoLevelCapping;
         }
 
         /** set the capping/max level value that could be used by automatic level selection algorithm **/
-        public function set autoLevelCapping(newLevel : int) : void {
+        public function set autoLevelCapping(newLevel:int):void {
             _levelController.autoLevelCapping = newLevel;
         }
 
         /** Return a Vector of quality level **/
-        public function get levels() : Vector.<Level> {
+        public function get levels():Vector.<Level> {
             return _levelLoader.levels;
-        };
+        }
 
         /** Return the current playback position. **/
-        public function get position() : Number {
+        public function get position():Number {
             return _streamBuffer.position;
-        };
+        }
 
         /** Return the current playback state. **/
-        public function get playbackState() : String {
+        public function get playbackState():String {
             return _hlsNetStream.playbackState;
-        };
+        }
 
         /** Return the current seek state. **/
-        public function get seekState() : String {
+        public function get seekState():String {
             return _hlsNetStream.seekState;
-        };
+        }
 
         /** Return the type of stream (VOD/LIVE). **/
-        public function get type() : String {
+        public function get type():String {
             return _levelLoader.type;
-        };
+        }
 
         /** Load and parse a new HLS URL **/
-        public function load(url : String) : void {
+        public function load(url:String):void {
             _level = 0;
             _hlsNetStream.close();
             _levelLoader.load(url);
-        };
+        }
 
         /** return HLS NetStream **/
-        public function get stream() : NetStream {
+        public function get stream():NetStream {
             return _hlsNetStream;
         }
 
-        public function get client() : Object {
+        public function get client():Object {
             return _client;
         }
 
-        public function set client(value : Object) : void {
+        public function set client(value:Object):void {
             _client = value;
         }
 
         /** get audio tracks list**/
-        public function get audioTracks() : Vector.<AudioTrack> {
+        public function get audioTracks():Vector.<AudioTrack> {
             return _audioTrackController.audioTracks;
-        };
+        }
 
         /** get alternate audio tracks list from playlist **/
-        public function get altAudioTracks() : Vector.<AltAudioTrack> {
+        public function get altAudioTracks():Vector.<AltAudioTrack> {
             return _levelLoader.altAudioTracks;
-        };
+        }
 
         /** get index of the selected audio track (index in audio track lists) **/
-        public function get audioTrack() : int {
+        public function get audioTrack():int {
             return _audioTrackController.audioTrack;
-        };
+        }
 
         /** select an audio track, based on its index in audio track lists**/
-        public function set audioTrack(val : int) : void {
+        public function set audioTrack(val:int):void {
             _audioTrackController.audioTrack = val;
         }
 
         /* set stage */
-        public function set stage(stage : Stage) : void {
+        public function set stage(stage:Stage):void {
             _stage = stage;
             this.dispatchEvent(new HLSEvent(HLSEvent.STAGE_SET));
         }
 
         /* get stage */
-        public function get stage() : Stage {
+        public function get stage():Stage {
             return _stage;
         }
 
         /* set URL stream loader */
-        public function set URLstream(urlstream : Class) : void {
+        public function set URLstream(urlstream:Class):void {
             _hlsURLStream = urlstream;
         }
 
         /* retrieve URL stream loader */
-        public function get URLstream() : Class {
+        public function get URLstream():Class {
             return _hlsURLStream;
         }
 
         /* set URL stream loader */
-        public function set URLloader(urlloader : Class) : void {
+        public function set URLloader(urlloader:Class):void {
             _hlsURLLoader = urlloader;
         }
 
         /* retrieve URL stream loader */
-        public function get URLloader() : Class {
+        public function get URLloader():Class {
             return _hlsURLLoader;
         }
+
         /* retrieve playback session stats */
-        public function get stats() : Stats {
+        public function get stats():Stats {
             return _statsHandler.stats;
         }
     }

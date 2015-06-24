@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls {
+
     import org.mangui.hls.constant.HLSSeekMode;
     import org.mangui.hls.constant.HLSMaxLevelCappingMode;
 
@@ -18,7 +19,7 @@ package org.mangui.hls {
          *
          * Default is false
          */
-        public static var capLevelToStage : Boolean = false;
+        public static var capLevelToStage:Boolean = false;
 
         /**
          * maxLevelCappingMode
@@ -29,7 +30,7 @@ package org.mangui.hls {
          *
          * Default is HLSMaxLevelCappingMode.DOWNSCALE
          */
-        public static var maxLevelCappingMode : String = HLSMaxLevelCappingMode.DOWNSCALE;
+        public static var maxLevelCappingMode:String = HLSMaxLevelCappingMode.DOWNSCALE;
 
         // // // // // // /////////////////////////////////
         //
@@ -43,7 +44,7 @@ package org.mangui.hls {
          *
          * Default is -1 = auto
          */
-        public static var minBufferLength : Number = -1;
+        public static var minBufferLength:Number = -1;
 
         /**
          * maxBufferLength
@@ -53,7 +54,7 @@ package org.mangui.hls {
          *
          * Default is 120
          */
-        public static var maxBufferLength : Number = 120;
+        public static var maxBufferLength:Number = 120;
 
         /**
          * maxBackBufferLength
@@ -63,7 +64,7 @@ package org.mangui.hls {
          *
          * Default is 30
          */
-        public static var maxBackBufferLength : Number = 30;
+        public static var maxBackBufferLength:Number = 30;
 
         /**
          * lowBufferLength
@@ -73,7 +74,7 @@ package org.mangui.hls {
          *
          * Default is 3
          */
-        public static var lowBufferLength : Number = 3;
+        public static var lowBufferLength:Number = 3;
 
         /**
          * seekMode
@@ -84,7 +85,7 @@ package org.mangui.hls {
          *
          * Default is HLSSeekMode.KEYFRAME_SEEK
          */
-        public static var seekMode : String = HLSSeekMode.KEYFRAME_SEEK;
+        public static var seekMode:String = HLSSeekMode.KEYFRAME_SEEK;
 
         /**
          * keyLoadMaxRetry
@@ -95,7 +96,7 @@ package org.mangui.hls {
          *
          * Default is 3
          */
-        public static var keyLoadMaxRetry : int = 3;
+        public static var keyLoadMaxRetry:int = 3;
 
         /**
          * keyLoadMaxRetryTimeout
@@ -106,7 +107,7 @@ package org.mangui.hls {
          *
          * Default is 64000.
          */
-        public static var keyLoadMaxRetryTimeout : Number = 64000;
+        public static var keyLoadMaxRetryTimeout:Number = 64000;
 
         /**
          * fragmentLoadMaxRetry
@@ -117,7 +118,7 @@ package org.mangui.hls {
          *
          * Default is 3
          */
-        public static var fragmentLoadMaxRetry : int = 3;
+        public static var fragmentLoadMaxRetry:int = 3;
 
         /**
          * fragmentLoadMaxRetryTimeout
@@ -128,7 +129,7 @@ package org.mangui.hls {
          *
          * Default is 4000
          */
-        public static var fragmentLoadMaxRetryTimeout : Number = 4000
+        public static var fragmentLoadMaxRetryTimeout:Number = 4000
 
         /**
          * fragmentLoadSkipAfterMaxRetry
@@ -139,7 +140,7 @@ package org.mangui.hls {
          *
          * Default is true.
          */
-        public static var fragmentLoadSkipAfterMaxRetry : Boolean = true;
+        public static var fragmentLoadSkipAfterMaxRetry:Boolean = true;
 
         /**
          * flushLiveURLCache
@@ -149,7 +150,7 @@ package org.mangui.hls {
          *
          * Default is false
          */
-        public static var flushLiveURLCache : Boolean = false;
+        public static var flushLiveURLCache:Boolean = false;
 
         /**
          * manifestLoadMaxRetry
@@ -158,7 +159,7 @@ package org.mangui.hls {
          *      0, means no retry, error will be triggered automatically
          *     -1 means infinite retry
          */
-        public static var manifestLoadMaxRetry : int = 3;
+        public static var manifestLoadMaxRetry:int = 3;
 
         /**
          * manifestLoadMaxRetryTimeout
@@ -169,7 +170,7 @@ package org.mangui.hls {
          *
          * Default is 64000
          */
-        public static var manifestLoadMaxRetryTimeout : Number = 64000;
+        public static var manifestLoadMaxRetryTimeout:Number = 64000;
 
         /**
          * startFromBitrate
@@ -180,7 +181,7 @@ package org.mangui.hls {
          *
          * Default is -1
          */
-        public static var startFromBitrate : Number = -1;
+        public static var startFromBitrate:Number = -1;
 
         /**
          * startFromLevel
@@ -192,7 +193,7 @@ package org.mangui.hls {
          *
          * Default is -1
          */
-        public static var startFromLevel : Number = -1;
+        public static var startFromLevel:Number = -1;
 
         /**
          * seekFromLevel
@@ -203,7 +204,7 @@ package org.mangui.hls {
          *
          * Default is -1
          */
-        public static var seekFromLevel : Number = -1;
+        public static var seekFromLevel:Number = -1;
 
         /**
          * useHardwareVideoDecoder
@@ -214,7 +215,7 @@ package org.mangui.hls {
          *
          * Default is false
          */
-        public static var useHardwareVideoDecoder : Boolean = false;
+        public static var useHardwareVideoDecoder:Boolean = false;
 
         /**
          * logInfo
@@ -223,7 +224,7 @@ package org.mangui.hls {
          *
          * Default is true
          */
-        public static var logInfo : Boolean = true;
+        public static var logInfo:Boolean = true;
 
         /**
          * logDebug
@@ -232,7 +233,7 @@ package org.mangui.hls {
          *
          * Default is false
          */
-        public static var logDebug : Boolean = false;
+        public static var logDebug:Boolean = false;
 
         /**
          * logDebug2
@@ -241,7 +242,7 @@ package org.mangui.hls {
          *
          * Default is false
          */
-        public static var logDebug2 : Boolean = false;
+        public static var logDebug2:Boolean = false;
 
         /**
          * logWarn
@@ -250,7 +251,7 @@ package org.mangui.hls {
          *
          * Default is true
          */
-        public static var logWarn : Boolean = true;
+        public static var logWarn:Boolean = true;
 
         /**
          * logError
@@ -259,6 +260,6 @@ package org.mangui.hls {
          *
          * Default is true
          */
-        public static var logError : Boolean = true;
+        public static var logError:Boolean = true;
     }
 }

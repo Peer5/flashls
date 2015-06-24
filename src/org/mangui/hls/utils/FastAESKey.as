@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- package org.mangui.hls.utils {
+package org.mangui.hls.utils {
+
     import flash.utils.ByteArray;
 
     /* word based AES encryption/decryption
@@ -10,26 +11,26 @@
      */
     public class FastAESKey {
         /* private data, specific to each key */
-        private var keySize : uint;
-        private var nRounds : uint;
-        private var ksRows : uint;
-        private var keySchedule : Vector.<uint>;
-        private var invKeySchedule : Vector.<uint>;
-        private var keyWords : Vector.<uint>;
-        private var state : Vector.<uint>;
+        private var keySize:uint;
+        private var nRounds:uint;
+        private var ksRows:uint;
+        private var keySchedule:Vector.<uint>;
+        private var invKeySchedule:Vector.<uint>;
+        private var keyWords:Vector.<uint>;
+        private var state:Vector.<uint>;
         // static Lookup tables
-        private static var _SBOX : Vector.<uint>;
-        private static var _INV_SBOX : Vector.<uint>;
-        private static var _INV_SUB_MIX_0 : Vector.<uint>;
-        private static var _INV_SUB_MIX_1 : Vector.<uint>;
-        private static var _INV_SUB_MIX_2 : Vector.<uint>;
-        private static var _INV_SUB_MIX_3 : Vector.<uint>;
-        private static var _RCON : Vector.<uint>;
+        private static var _SBOX:Vector.<uint>;
+        private static var _INV_SBOX:Vector.<uint>;
+        private static var _INV_SUB_MIX_0:Vector.<uint>;
+        private static var _INV_SUB_MIX_1:Vector.<uint>;
+        private static var _INV_SUB_MIX_2:Vector.<uint>;
+        private static var _INV_SUB_MIX_3:Vector.<uint>;
+        private static var _RCON:Vector.<uint>;
         // static initializer
         {
-        _initTable();
-        };
-        private static function _initTable() : void {
+            _initTable();
+        }
+        private static function _initTable():void {
             _SBOX = new Vector.<uint>(256);
             _INV_SBOX = new Vector.<uint>(256);
             _INV_SUB_MIX_0 = new Vector.<uint>(256);
@@ -39,8 +40,8 @@
             _RCON = new <uint>[0x0, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
 
             // Compute double table
-            var i : int;
-            var d : Vector.<uint> = new Vector.<uint>(256);
+            var i:int;
+            var d:Vector.<uint> = new Vector.<uint>(256);
             for (i = 0; i < 256; i++) {
                 if (i < 128) {
                     d[i] = i << 1;
@@ -49,22 +50,22 @@
                 }
             }
             // Walk GF(2^8)
-            var x : uint = 0;
-            var xi : uint = 0;
+            var x:uint = 0;
+            var xi:uint = 0;
             for (i = 0; i < 256; i++) {
                 // Compute sbox
-                var sx : uint = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
+                var sx:uint = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
                 sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
                 _SBOX[x] = sx;
                 _INV_SBOX[sx] = x;
 
                 // Compute multiplication
-                var x2 : uint = d[x];
-                var x4 : uint = d[x2];
-                var x8 : uint = d[x4];
+                var x2:uint = d[x];
+                var x4:uint = d[x2];
+                var x8:uint = d[x4];
 
                 // Compute inv sub bytes, inv mix columns tables
-                var t: uint  = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
+                var t:uint = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
                 _INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
                 _INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
                 _INV_SUB_MIX_2[sx] = (t << 8) | (t >>> 24);
@@ -80,7 +81,7 @@
             }
         }
 
-        public function FastAESKey(key : ByteArray) {
+        public function FastAESKey(key:ByteArray) {
             keySize = key.length / 4;
             // Compute number of rounds
             nRounds = keySize + 6;
@@ -89,19 +90,19 @@
             state = new Vector.<uint>(keySize);
             keyWords = new Vector.<uint>(keySize);
             key.position = 0;
-            for (var i : int = 0; i < keySize; i++) {
+            for (var i:int = 0; i < keySize; i++) {
                 keyWords[i] = key.readUnsignedInt();
             }
             expandKey();
         }
 
-        private function expandKey() : void {
+        private function expandKey():void {
             this.keySchedule = new Vector.<uint>(ksRows);
-            for (var ksRow : int = 0; ksRow < ksRows; ksRow++) {
+            for (var ksRow:int = 0; ksRow < ksRows; ksRow++) {
                 if (ksRow < keySize) {
                     keySchedule[ksRow] = keyWords[ksRow];
                 } else {
-                    var t : uint = keySchedule[ksRow - 1];
+                    var t:uint = keySchedule[ksRow - 1];
 
                     if (!(ksRow % keySize)) {
                         // Rot word
@@ -122,7 +123,7 @@
             }
             // Compute inv key schedule
             this.invKeySchedule = new Vector.<uint>(ksRows);
-            for (var invKsRow : int = 0; invKsRow < ksRows; invKsRow++) {
+            for (var invKsRow:int = 0; invKsRow < ksRows; invKsRow++) {
                 ksRow = ksRows - invKsRow;
 
                 if (invKsRow % 4) {
@@ -138,38 +139,38 @@
                 }
             }
         }
-        
-        public function decrypt128(input : Vector.<uint>,output : Vector.<uint>) : void {
+
+        public function decrypt128(input:Vector.<uint>, output:Vector.<uint>):void {
             // Swap 2nd and 4th rows
-          state[0] = input[0];
-          state[1] = input[3];
-          state[2] = input[2];
-          state[3] = input[1];          
-          _doCryptBlock(invKeySchedule, _INV_SUB_MIX_0, _INV_SUB_MIX_1, _INV_SUB_MIX_2, _INV_SUB_MIX_3, _INV_SBOX);
-          // Inv swap 2nd and 4th rows
-          output[0] = state[0];
-          output[1] = state[3];
-          output[2] = state[2];
-          output[3] = state[1];
+            state[0] = input[0];
+            state[1] = input[3];
+            state[2] = input[2];
+            state[3] = input[1];
+            _doCryptBlock(invKeySchedule, _INV_SUB_MIX_0, _INV_SUB_MIX_1, _INV_SUB_MIX_2, _INV_SUB_MIX_3, _INV_SBOX);
+            // Inv swap 2nd and 4th rows
+            output[0] = state[0];
+            output[1] = state[3];
+            output[2] = state[2];
+            output[3] = state[1];
         }
 
-        private function  _doCryptBlock(keySchedule : Vector.<uint>, SUB_MIX_0 : Vector.<uint>, SUB_MIX_1 : Vector.<uint>, SUB_MIX_2 : Vector.<uint>, SUB_MIX_3 : Vector.<uint>, SBOX : Vector.<uint>) : void {
+        private function _doCryptBlock(keySchedule:Vector.<uint>, SUB_MIX_0:Vector.<uint>, SUB_MIX_1:Vector.<uint>, SUB_MIX_2:Vector.<uint>, SUB_MIX_3:Vector.<uint>, SBOX:Vector.<uint>):void {
             // Shortcut
             // Get input, add round key
-            var s0 : uint = state[0] ^ keySchedule[0];
-            var s1 : uint = state[1] ^ keySchedule[1];
-            var s2 : uint = state[2] ^ keySchedule[2];
-            var s3 : uint = state[3] ^ keySchedule[3];
+            var s0:uint = state[0] ^ keySchedule[0];
+            var s1:uint = state[1] ^ keySchedule[1];
+            var s2:uint = state[2] ^ keySchedule[2];
+            var s3:uint = state[3] ^ keySchedule[3];
 
             // Key schedule row counter
-            var ksRow : uint = 4;
-            var t0 : uint;
-            var t1 : uint;
-            var t2 : uint;
-            var t3 : uint;
+            var ksRow:uint = 4;
+            var t0:uint;
+            var t1:uint;
+            var t2:uint;
+            var t3:uint;
 
             // Rounds
-            for (var round : int = 1; round < nRounds; round++) {
+            for (var round:int = 1; round < nRounds; round++) {
                 // Shift rows, sub bytes, mix columns, add round key
                 t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^ SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
                 t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^ SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
@@ -194,7 +195,7 @@
             state[3] = t3;
         }
 
-        public function dispose() : void {
+        public function dispose():void {
             keyWords.length = 0;
             keyWords = null;
         }

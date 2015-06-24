@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- package org.mangui.hls.utils {
+package org.mangui.hls.utils {
+
     import flash.utils.getTimer;
     import flash.display.DisplayObject;
     import flash.utils.ByteArray;
@@ -11,30 +12,30 @@
      * Contains Utility functions for AES-128 CBC Decryption
      */
     public class AES {
-        private var _key : FastAESKey;
+        private var _key:FastAESKey;
         //private var _keyArray : ByteArray;
-        private var iv0 : uint;
-        private var iv1 : uint;
-        private var iv2 : uint;
-        private var iv3 : uint;
+        private var iv0:uint;
+        private var iv1:uint;
+        private var iv2:uint;
+        private var iv3:uint;
         /* callback function upon decrypt progress */
-        private var _progress : Function;
+        private var _progress:Function;
         /* callback function upon decrypt complete */
-        private var _complete : Function;
+        private var _complete:Function;
         /** Byte data to be decrypt **/
-        private var _data : ByteArray;
+        private var _data:ByteArray;
         /** read position **/
-        private var _readPosition : uint;
+        private var _readPosition:uint;
         /** write position **/
-        private var _writePosition : uint;
+        private var _writePosition:uint;
         /** chunk size to avoid blocking **/
-        private static const CHUNK_SIZE : uint = 2048;
+        private static const CHUNK_SIZE:uint = 2048;
         /** is bytearray full ? **/
-        private var _dataComplete : Boolean;
+        private var _dataComplete:Boolean;
         /** display object used for ENTER_FRAME listener */
-        private var _displayObject : DisplayObject;
+        private var _displayObject:DisplayObject;
 
-        public function AES(displayObject : DisplayObject, key : ByteArray, iv : ByteArray, notifyprogress : Function, notifycomplete : Function) {
+        public function AES(displayObject:DisplayObject, key:ByteArray, iv:ByteArray, notifyprogress:Function, notifycomplete:Function) {
             // _keyArray = key;
             _key = new FastAESKey(key);
             iv.position = 0;
@@ -51,7 +52,7 @@
             _displayObject = displayObject;
         }
 
-        public function append(data : ByteArray) : void {
+        public function append(data:ByteArray):void {
             // CONFIG::LOGGING {
             // Log.info("notify append");
             // }
@@ -63,20 +64,20 @@
             _writePosition += data.length;
         }
 
-        public function notifycomplete() : void {
+        public function notifycomplete():void {
             // CONFIG::LOGGING {
             // Log.info("notify complete");
             // }
             _dataComplete = true;
         }
 
-        public function cancel() : void {
+        public function cancel():void {
             _displayObject.removeEventListener(Event.ENTER_FRAME, _decryptTimer);
         }
 
-        private function _decryptTimer(e : Event) : void {
-            var start_time : int = getTimer();
-            var decrypted : Boolean;
+        private function _decryptTimer(e:Event):void {
+            var start_time:int = getTimer();
+            var decrypted:Boolean;
             do {
                 decrypted = _decryptChunk();
                 // dont spend more than 20 ms in the decrypt timer to avoid blocking/freezing video
@@ -84,9 +85,9 @@
         }
 
         /** decrypt a small chunk of packets each time to avoid blocking **/
-        private function _decryptChunk() : Boolean {
+        private function _decryptChunk():Boolean {
             _data.position = _readPosition;
-            var decryptdata : ByteArray;
+            var decryptdata:ByteArray;
             if (_data.bytesAvailable) {
                 if (_data.bytesAvailable <= CHUNK_SIZE) {
                     if (_dataComplete) {
@@ -123,13 +124,13 @@
          * http://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Cipher-block_chaining_
          * for algorithm description
          */
-        private function _decryptCBC(crypt : ByteArray, len : uint) : ByteArray {
-            var src : Vector.<uint> = new Vector.<uint>(4);
-            var dst : Vector.<uint> = new Vector.<uint>(4);
-            var decrypt : ByteArray = new ByteArray();
+        private function _decryptCBC(crypt:ByteArray, len:uint):ByteArray {
+            var src:Vector.<uint> = new Vector.<uint>(4);
+            var dst:Vector.<uint> = new Vector.<uint>(4);
+            var decrypt:ByteArray = new ByteArray();
             decrypt.length = len;
 
-            for (var i : uint = 0; i < len / 16; i++) {
+            for (var i:uint = 0; i < len / 16; i++) {
                 // read src byte array
                 src[0] = crypt.readUnsignedInt();
                 src[1] = crypt.readUnsignedInt();
@@ -155,18 +156,22 @@
             return decrypt;
         }
 
-        public function unpad(a : ByteArray) : void {
-            var c : uint = a.length % 16;
-            if (c != 0) throw new Error("PKCS#5::unpad: ByteArray.length isn't a multiple of the blockSize");
+        public function unpad(a:ByteArray):void {
+            var c:uint = a.length % 16;
+            if (c != 0) {
+                throw new Error("PKCS#5::unpad: ByteArray.length isn't a multiple of the blockSize");
+            }
             c = a[a.length - 1];
-            for (var i : uint = c; i > 0; i--) {
-                var v : uint = a[a.length - 1];
+            for (var i:uint = c; i > 0; i--) {
+                var v:uint = a[a.length - 1];
                 a.length--;
-                if (c != v) throw new Error("PKCS#5:unpad: Invalid padding value. expected [" + c + "], found [" + v + "]");
+                if (c != v) {
+                    throw new Error("PKCS#5:unpad: Invalid padding value. expected [" + c + "], found [" + v + "]");
+                }
             }
         }
 
-        public function destroy() : void {
+        public function destroy():void {
             _key.dispose();
             // _key = null;
         }
