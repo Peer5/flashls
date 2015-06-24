@@ -2,20 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls.event {
+
     /** playback metrics, notified when playback of a given fragment starts **/
     public class HLSPlayMetrics {
-        public var level : int;
-        public var seqnum : int;
-        public var continuity_counter : int;
-        public var duration : Number;
-        public var audio_only : Boolean;
-        public var program_date : Number;
-        public var video_width : int;
-        public var video_height : int;
-        public var auto_level : Boolean;
-        public var tag_list : Array;
+        public var level:int;
+        public var seqnum:int;
+        public var continuity_counter:int;
+        public var duration:Number;
+        public var audio_only:Boolean;
+        public var program_date:Number;
+        public var video_width:int;
+        public var video_height:int;
+        public var auto_level:Boolean;
+        public var tag_list:Array;
 
-        public function HLSPlayMetrics(level : int, seqnum : int, cc : int, duration : Number, audio_only : Boolean, program_date : Number, video_width : int, video_height : int, auto_level : Boolean, tag_list : Array) {
+        public function HLSPlayMetrics(level:int, seqnum:int, cc:int, duration:Number, audio_only:Boolean, program_date:Number, video_width:int, video_height:int, auto_level:Boolean, tag_list:Array) {
             this.level = level;
             this.seqnum = seqnum;
             this.continuity_counter = cc;

@@ -2,115 +2,122 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls.model {
+
     CONFIG::LOGGING {
         import org.mangui.hls.utils.Log;
     }
+
     import org.mangui.hls.utils.PTS;
 
     /** HLS streaming quality level. **/
     public class Level {
         /** audio only Level ? **/
-        public var audio : Boolean;
+        public var audio:Boolean;
         /** AAC codec signaled ? **/
-        public var codec_aac : Boolean;
+        public var codec_aac:Boolean;
         /** MP3 codec signaled ? **/
-        public var codec_mp3 : Boolean;
+        public var codec_mp3:Boolean;
         /** H264 codec signaled ? **/
-        public var codec_h264 : Boolean;
+        public var codec_h264:Boolean;
         /** Level Bitrate. **/
-        public var bitrate : uint;
+        public var bitrate:uint;
         /** Level Name. **/
-        public var name : String;
+        public var name:String;
         /** level index (sorted by bitrate) **/
-        public var index : int = 0;
+        public var index:int = 0;
         /** level index (manifest order) **/
-        public var manifest_index : int = 0;
+        public var manifest_index:int = 0;
         /** video width (from playlist) **/
-        public var width : int;
+        public var width:int;
         /** video height (from playlist) **/
-        public var height : int;
+        public var height:int;
         /** URL of this bitrate level (for M3U8). **/
-        public var url : String;
+        public var url:String;
         /** Level fragments **/
-        public var fragments : Vector.<Fragment>;
+        public var fragments:Vector.<Fragment>;
         /** min sequence number from M3U8. **/
-        public var start_seqnum : int;
+        public var start_seqnum:int;
         /** max sequence number from M3U8. **/
-        public var end_seqnum : int;
+        public var end_seqnum:int;
         /** target fragment duration from M3U8 **/
-        public var targetduration : Number;
+        public var targetduration:Number;
         /** average fragment duration **/
-        public var averageduration : Number;
+        public var averageduration:Number;
         /** Total duration **/
-        public var duration : Number;
+        public var duration:Number;
         /**  Audio Identifier **/
-        public var audio_stream_id : String;
+        public var audio_stream_id:String;
 
         /** Create the quality level. **/
-        public function Level() : void {
+        public function Level():void {
             this.fragments = new Vector.<Fragment>();
-        };
+        }
 
         /** Return the Fragment before a given time position. **/
-        public function getFragmentBeforePosition(position : Number) : Fragment {
-            if (fragments[0].data.valid && position < fragments[0].start_time)
+        public function getFragmentBeforePosition(position:Number):Fragment {
+            if (fragments[0].data.valid && position < fragments[0].start_time) {
                 return fragments[0];
+            }
 
-            var len : int = fragments.length;
-            for (var i : int = 0; i < len; i++) {
+            var len:int = fragments.length;
+            for (var i:int = 0; i < len; i++) {
                 /* check whether fragment contains current position */
                 if (fragments[i].data.valid && fragments[i].start_time <= position && fragments[i].start_time + fragments[i].duration > position) {
                     return fragments[i];
                 }
             }
             return fragments[len - 1];
-        };
+        }
 
         /** Return the sequence number from a given program date **/
-        public function getSeqNumFromProgramDate(program_date : Number) : int {
-            if (program_date < fragments[0].program_date)
+        public function getSeqNumFromProgramDate(program_date:Number):int {
+            if (program_date < fragments[0].program_date) {
                 return -1;
+            }
 
-            var len : int = fragments.length;
-            for (var i : int = 0; i < len; i++) {
+            var len:int = fragments.length;
+            for (var i:int = 0; i < len; i++) {
                 /* check whether fragment contains current position */
                 if (fragments[i].data.valid && fragments[i].program_date <= program_date && fragments[i].program_date + 1000 * fragments[i].duration > program_date) {
                     return (start_seqnum + i);
                 }
             }
             return -1;
-        };
+        }
 
         /** Return the sequence number nearest a PTS **/
-        public function getSeqNumNearestPTS(pts : Number, continuity : int) : Number {
-            if (fragments.length == 0)
+        public function getSeqNumNearestPTS(pts:Number, continuity:int):Number {
+            if (fragments.length == 0) {
                 return -1;
-            var firstIndex : Number = getFirstIndexfromContinuity(continuity);
-            if (firstIndex == -1 || isNaN(fragments[firstIndex].data.pts_start_computed))
+            }
+            var firstIndex:Number = getFirstIndexfromContinuity(continuity);
+            if (firstIndex == -1 || isNaN(fragments[firstIndex].data.pts_start_computed)) {
                 return -1;
-            var lastIndex : Number = getLastIndexfromContinuity(continuity);
+            }
+            var lastIndex:Number = getLastIndexfromContinuity(continuity);
 
-            for (var i : int = firstIndex; i <= lastIndex; i++) {
-                var frag : Fragment = fragments[i];
+            for (var i:int = firstIndex; i <= lastIndex; i++) {
+                var frag:Fragment = fragments[i];
                 /* check nearest fragment */
-                if ( frag.data.valid && (frag.duration >= 0) && (Math.abs(frag.data.pts_start_computed - pts) < Math.abs(frag.data.pts_start_computed + 1000 * frag.duration - pts))) {
+                if (frag.data.valid && (frag.duration >= 0) && (Math.abs(frag.data.pts_start_computed - pts) < Math.abs(frag.data.pts_start_computed + 1000 * frag.duration - pts))) {
                     return frag.seqnum;
                 }
             }
             // requested PTS above max PTS of this level
             return Number.POSITIVE_INFINITY;
-        };
+        }
 
-        public function getLevelstartPTS() : Number {
-            if (fragments.length)
+        public function getLevelstartPTS():Number {
+            if (fragments.length) {
                 return fragments[0].data.pts_start_computed;
-            else
+            } else {
                 return NaN;
+            }
         }
 
         /** Return the fragment index from fragment sequence number **/
-        public function getFragmentfromSeqNum(seqnum : Number) : Fragment {
-            var index : int = getIndexfromSeqNum(seqnum);
+        public function getFragmentfromSeqNum(seqnum:Number):Fragment {
+            var index:int = getIndexfromSeqNum(seqnum);
             if (index != -1) {
                 return fragments[index];
             } else {
@@ -119,7 +126,7 @@ package org.mangui.hls.model {
         }
 
         /** Return the fragment index from fragment sequence number **/
-        private function getIndexfromSeqNum(seqnum : int) : int {
+        private function getIndexfromSeqNum(seqnum:int):int {
             if (seqnum >= start_seqnum && seqnum <= end_seqnum) {
                 return (fragments.length - 1 - (end_seqnum - seqnum));
             } else {
@@ -128,19 +135,20 @@ package org.mangui.hls.model {
         }
 
         /** Return the first index matching with given continuity counter **/
-        private function getFirstIndexfromContinuity(continuity : int) : int {
+        private function getFirstIndexfromContinuity(continuity:int):int {
             // look for first fragment matching with given continuity index
-            var len : int = fragments.length;
-            for (var i : int = 0; i < len; i++) {
-                if (fragments[i].continuity == continuity)
+            var len:int = fragments.length;
+            for (var i:int = 0; i < len; i++) {
+                if (fragments[i].continuity == continuity) {
                     return i;
+                }
             }
             return -1;
         }
 
         /** Return the first seqnum matching with given continuity counter **/
-        public function getFirstSeqNumfromContinuity(continuity : int) : Number {
-            var index : int = getFirstIndexfromContinuity(continuity);
+        public function getFirstSeqNumfromContinuity(continuity:int):Number {
+            var index:int = getFirstIndexfromContinuity(continuity);
             if (index == -1) {
                 return Number.NEGATIVE_INFINITY;
             }
@@ -148,8 +156,8 @@ package org.mangui.hls.model {
         }
 
         /** Return the last seqnum matching with given continuity counter **/
-        public function getLastSeqNumfromContinuity(continuity : int) : Number {
-            var index : int = getLastIndexfromContinuity(continuity);
+        public function getLastSeqNumfromContinuity(continuity:int):Number {
+            var index:int = getLastIndexfromContinuity(continuity);
             if (index == -1) {
                 return Number.NEGATIVE_INFINITY;
             }
@@ -157,45 +165,47 @@ package org.mangui.hls.model {
         }
 
         /** Return the last index matching with given continuity counter **/
-        private function getLastIndexfromContinuity(continuity : Number) : int {
-            var firstIndex : int = getFirstIndexfromContinuity(continuity);
-            if (firstIndex == -1)
+        private function getLastIndexfromContinuity(continuity:Number):int {
+            var firstIndex:int = getFirstIndexfromContinuity(continuity);
+            if (firstIndex == -1) {
                 return -1;
+            }
 
-            var lastIndex : int = firstIndex;
+            var lastIndex:int = firstIndex;
             // look for first fragment matching with given continuity index
-            for (var i : int = firstIndex; i < fragments.length; i++) {
-                if (fragments[i].continuity == continuity)
+            for (var i:int = firstIndex; i < fragments.length; i++) {
+                if (fragments[i].continuity == continuity) {
                     lastIndex = i;
-                else
+                } else {
                     break;
+                }
             }
             return lastIndex;
         }
 
         /** set Fragments **/
-        public function updateFragments(_fragments : Vector.<Fragment>) : void {
-            var idx_with_metrics : int = -1;
-            var len : int = _fragments.length;
-            var continuity_offset : int;
-            var frag : Fragment;
+        public function updateFragments(_fragments:Vector.<Fragment>):void {
+            var idx_with_metrics:int = -1;
+            var len:int = _fragments.length;
+            var continuity_offset:int;
+            var frag:Fragment;
             // update PTS from previous fragments
-            for (var i : int = 0; i < len; i++) {
+            for (var i:int = 0; i < len; i++) {
                 frag = getFragmentfromSeqNum(_fragments[i].seqnum);
                 if (frag != null) {
                     continuity_offset = frag.continuity - _fragments[i].continuity;
-                    if(!isNaN(frag.data.pts_start)) {
-                    _fragments[i].data = frag.data;
-                    idx_with_metrics = i;
+                    if (!isNaN(frag.data.pts_start)) {
+                        _fragments[i].data = frag.data;
+                        idx_with_metrics = i;
                     }
                 }
             }
-            if(continuity_offset) {
+            if (continuity_offset) {
                 CONFIG::LOGGING {
                     Log.debug("updateFragments: discontinuity sliding from live playlist,take into account discontinuity drift:" + continuity_offset);
                 }
                 for (i = 0; i < len; i++) {
-                     _fragments[i].continuity+= continuity_offset;
+                    _fragments[i].continuity += continuity_offset;
                 }
             }
             updateFragmentsProgramDate(_fragments);
@@ -225,12 +235,12 @@ package org.mangui.hls.model {
             }
         }
 
-        private function updateFragmentsProgramDate(_fragments : Vector.<Fragment>) : void {
-            var len : int = _fragments.length;
-            var continuity : int;
-            var program_date : Number;
-            var frag : Fragment;
-            for (var i : int = 0; i < len; i++) {
+        private function updateFragmentsProgramDate(_fragments:Vector.<Fragment>):void {
+            var len:int = _fragments.length;
+            var continuity:int;
+            var program_date:Number;
+            var frag:Fragment;
+            for (var i:int = 0; i < len; i++) {
                 frag = _fragments[i];
                 if (frag.continuity != continuity) {
                     continuity = frag.continuity;
@@ -244,12 +254,12 @@ package org.mangui.hls.model {
             }
         }
 
-        private function _updatePTS(from_index : int, to_index : int) : void {
+        private function _updatePTS(from_index:int, to_index:int):void {
             // CONFIG::LOGGING {
             // Log.info("updateFragmentPTS from/to:" + from_index + "/" + to_index);
             // }
-            var frag_from : Fragment = fragments[from_index];
-            var frag_to : Fragment = fragments[to_index];
+            var frag_from:Fragment = fragments[from_index];
+            var frag_to:Fragment = fragments[to_index];
 
             if (frag_from.data.valid && frag_to.data.valid) {
                 if (!isNaN(frag_to.data.pts_start)) {
@@ -257,9 +267,9 @@ package org.mangui.hls.model {
                     frag_to.data.pts_start_computed = frag_to.data.pts_start;
                     /* normalize computed PTS value based on known PTS value.
                      * this is to avoid computing wrong fragment duration in case of PTS looping */
-                    var from_pts : Number = PTS.normalize(frag_to.data.pts_start, frag_from.data.pts_start_computed);
+                    var from_pts:Number = PTS.normalize(frag_to.data.pts_start, frag_from.data.pts_start_computed);
                     /* update fragment duration.
-                    it helps to fix drifts between playlist reported duration and fragment real duration */
+                     it helps to fix drifts between playlist reported duration and fragment real duration */
                     if (to_index > from_index) {
                         frag_from.duration = (frag_to.data.pts_start - from_pts) / 1000;
                         CONFIG::LOGGING {
@@ -277,22 +287,23 @@ package org.mangui.hls.model {
                     }
                 } else {
                     // we dont know PTS[to_index]
-                    if (to_index > from_index)
+                    if (to_index > from_index) {
                         frag_to.data.pts_start_computed = frag_from.data.pts_start_computed + 1000 * frag_from.duration;
-                    else
+                    } else {
                         frag_to.data.pts_start_computed = frag_from.data.pts_start_computed - 1000 * frag_to.duration;
+                    }
                 }
             }
         }
 
-        public function updateFragment(seqnum : Number, valid : Boolean, min_pts : Number = 0, max_pts : Number = 0) : void {
+        public function updateFragment(seqnum:Number, valid:Boolean, min_pts:Number = 0, max_pts:Number = 0):void {
             // CONFIG::LOGGING {
             // Log.info("updatePTS : seqnum/min/max:" + seqnum + '/' + min_pts + '/' + max_pts);
             // }
             // get fragment from seqnum
-            var fragIdx : int = getIndexfromSeqNum(seqnum);
+            var fragIdx:int = getIndexfromSeqNum(seqnum);
             if (fragIdx != -1) {
-                var frag : Fragment = fragments[fragIdx];
+                var frag:Fragment = fragments[fragIdx];
                 // update fragment start PTS + duration
                 if (valid) {
                     frag.data.pts_start = min_pts;
@@ -307,7 +318,7 @@ package org.mangui.hls.model {
                 // }
 
                 // adjust fragment PTS/duration from seqnum-1 to frag 0
-                for (var i : int = fragIdx; i > 0 && fragments[i - 1].continuity == frag.continuity; i--) {
+                for (var i:int = fragIdx; i > 0 && fragments[i - 1].continuity == frag.continuity; i--) {
                     _updatePTS(i, i - 1);
                     // CONFIG::LOGGING {
                     // Log.info("SN["+fragments[i-1].seqnum+"]:pts/duration:" + fragments[i-1].start_pts_computed + "/" + fragments[i-1].duration);
@@ -323,8 +334,8 @@ package org.mangui.hls.model {
                 }
 
                 // second, adjust fragment offset
-                var start_time_offset : Number = fragments[0].start_time;
-                var len : int = fragments.length;
+                var start_time_offset:Number = fragments[0].start_time;
+                var len:int = fragments.length;
                 for (i = 0; i < len; i++) {
                     fragments[i].start_time = start_time_offset;
                     start_time_offset += fragments[i].duration;

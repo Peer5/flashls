@@ -54,7 +54,7 @@ package org.mangui.hls.model {
             // CONFIG::LOGGING {
             // Log.info("Frag["+seqnum+"]:duration/start_time,cc="+duration+","+start_time+","+continuity);
             // }
-        };
+        }
 
         public function get metadataTag() : FLVTag {
             var tag : FLVTag = new FLVTag(FLVTag.METADATA, this.data.dts_min, this.data.dts_min, false);

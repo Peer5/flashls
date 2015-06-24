@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.flowplayer {
+
     import org.flowplayer.model.PluginFactory;
 
     import flash.display.Sprite;
@@ -10,7 +11,7 @@ package org.mangui.flowplayer {
         public function HLSPluginFactory() {
         }
 
-        public function newPlugin() : Object {
+        public function newPlugin():Object {
             return new HLSStreamProvider();
         }
     }

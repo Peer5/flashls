@@ -1,22 +1,24 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
- package org.mangui.hls.demux {
+package org.mangui.hls.demux {
+
     import flash.utils.ByteArray;
+
     import org.mangui.hls.model.Level;
 
     CONFIG::LOGGING {
         import org.mangui.hls.utils.Log;
     }
     public class DemuxHelper {
-        public static function probe(data : ByteArray, level : Level, audioselect : Function, progress : Function, complete : Function, videometadata : Function, audioOnly : Boolean) : Demuxer {
+        public static function probe(data:ByteArray, level:Level, audioselect:Function, progress:Function, complete:Function, videometadata:Function, audioOnly:Boolean):Demuxer {
             data.position = 0;
             CONFIG::LOGGING {
                 Log.debug("probe fragment type");
             }
-            var aac_match : Boolean = AACDemuxer.probe(data);
-            var mp3_match : Boolean = MP3Demuxer.probe(data);
-            var ts_match : Boolean = TSDemuxer.probe(data);
+            var aac_match:Boolean = AACDemuxer.probe(data);
+            var mp3_match:Boolean = MP3Demuxer.probe(data);
+            var ts_match:Boolean = TSDemuxer.probe(data);
             CONFIG::LOGGING {
                 Log.debug("AAC/MP3/TS match:" + aac_match + "/" + mp3_match + "/" + ts_match);
             }

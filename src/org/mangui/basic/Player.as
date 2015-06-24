@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.basic {
+
     import org.mangui.hls.HLS;
     import org.mangui.hls.event.HLSEvent;
 
@@ -9,8 +10,8 @@ package org.mangui.basic {
     import flash.media.Video;
 
     public class Player extends Sprite {
-        private var hls : HLS = null;
-        private var video : Video = null;
+        private var hls:HLS = null;
+        private var video:Video = null;
 
         public function Player() {
             hls = new HLS();
@@ -25,8 +26,8 @@ package org.mangui.basic {
             hls.load("http://domain.com/hls/m1.m3u8");
         }
 
-        public function manifestHandler(event : HLSEvent) : void {
+        public function manifestHandler(event:HLSEvent):void {
             hls.stream.play(null, -1);
-        };
+        }
     }
 }

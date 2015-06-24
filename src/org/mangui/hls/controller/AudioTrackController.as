@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls.controller {
+
     import org.mangui.hls.playlist.AltAudioTrack;
     import org.mangui.hls.event.HLSEvent;
     import org.mangui.hls.model.AudioTrack;
@@ -15,31 +16,31 @@ package org.mangui.hls.controller {
      */
     public class AudioTrackController {
         /** Reference to the HLS controller. **/
-        private var _hls : HLS;
+        private var _hls:HLS;
         /** list of audio tracks from demuxed fragments **/
-        private var _audioTracksfromDemux : Vector.<AudioTrack>;
+        private var _audioTracksfromDemux:Vector.<AudioTrack>;
         /** list of audio tracks from Manifest, matching with current level **/
-        private var _audioTracksfromManifest : Vector.<AudioTrack>;
+        private var _audioTracksfromManifest:Vector.<AudioTrack>;
         /** merged audio tracks list **/
-        private var _audioTracks : Vector.<AudioTrack>;
+        private var _audioTracks:Vector.<AudioTrack>;
         /** current audio track id **/
-        private var _audioTrackId : int;
+        private var _audioTrackId:int;
 
-        public function AudioTrackController(hls : HLS) {
+        public function AudioTrackController(hls:HLS) {
             _hls = hls;
             _hls.addEventListener(HLSEvent.MANIFEST_LOADED, _manifestLoadedHandler);
             _hls.addEventListener(HLSEvent.LEVEL_LOADED, _levelLoadedHandler);
         }
 
-        public function dispose() : void {
+        public function dispose():void {
             _hls.removeEventListener(HLSEvent.MANIFEST_LOADED, _manifestLoadedHandler);
             _hls.removeEventListener(HLSEvent.LEVEL_LOADED, _levelLoadedHandler);
         }
 
-        public function set audioTrack(num : int) : void {
+        public function set audioTrack(num:int):void {
             if (_audioTrackId != num) {
                 _audioTrackId = num;
-                var ev : HLSEvent = new HLSEvent(HLSEvent.AUDIO_TRACK_SWITCH);
+                var ev:HLSEvent = new HLSEvent(HLSEvent.AUDIO_TRACK_SWITCH);
                 ev.audioTrack = _audioTrackId;
                 _hls.dispatchEvent(ev);
                 CONFIG::LOGGING {
@@ -48,41 +49,41 @@ package org.mangui.hls.controller {
             }
         }
 
-        public function get audioTrack() : int {
+        public function get audioTrack():int {
             return _audioTrackId;
         }
 
-        public function get audioTracks() : Vector.<AudioTrack> {
+        public function get audioTracks():Vector.<AudioTrack> {
             return _audioTracks;
         }
 
-        private function _manifestLoadedHandler(event : HLSEvent) : void {
+        private function _manifestLoadedHandler(event:HLSEvent):void {
             // reset audio tracks
             _audioTrackId = -1;
             _audioTracksfromDemux = new Vector.<AudioTrack>();
             _audioTracksfromManifest = new Vector.<AudioTrack>();
             _updateAudioTrackforLevel(_hls.loadLevel);
             _audioTracksMerge();
-        };
+        }
 
         /** Store the manifest data. **/
-        private function _levelLoadedHandler(event : HLSEvent) : void {
-            var level : int = event.loadMetrics.level;
+        private function _levelLoadedHandler(event:HLSEvent):void {
+            var level:int = event.loadMetrics.level;
             if (level == _hls.loadLevel) {
                 _updateAudioTrackforLevel(level);
             }
-        };
+        }
 
-        private function _updateAudioTrackforLevel(level : uint) : void {
-            var audioTrackList : Vector.<AudioTrack> = new Vector.<AudioTrack>();
-            var streamId : String = _hls.levels[level].audio_stream_id;
+        private function _updateAudioTrackforLevel(level:uint):void {
+            var audioTrackList:Vector.<AudioTrack> = new Vector.<AudioTrack>();
+            var streamId:String = _hls.levels[level].audio_stream_id;
             // check if audio stream id is set, and alternate audio tracks available
             if (streamId && _hls.altAudioTracks) {
                 // try to find alternate audio streams matching with this ID
-                for (var idx : int = 0; idx < _hls.altAudioTracks.length; idx++) {
-                    var altAudioTrack : AltAudioTrack = _hls.altAudioTracks[idx];
+                for (var idx:int = 0; idx < _hls.altAudioTracks.length; idx++) {
+                    var altAudioTrack:AltAudioTrack = _hls.altAudioTracks[idx];
                     if (altAudioTrack.group_id == streamId) {
-                        var isDefault : Boolean = (altAudioTrack.default_track == true || altAudioTrack.autoselect == true);
+                        var isDefault:Boolean = (altAudioTrack.default_track == true || altAudioTrack.autoselect == true);
                         CONFIG::LOGGING {
                             Log.debug(" audio track[" + audioTrackList.length + "]:" + (isDefault ? "default:" : "alternate:") + altAudioTrack.name);
                         }
@@ -91,7 +92,7 @@ package org.mangui.hls.controller {
                 }
             }
             // check if audio tracks matching with current level have changed since last time
-            var audioTrackChanged : Boolean = false;
+            var audioTrackChanged:Boolean = false;
             if (_audioTracksfromManifest.length != audioTrackList.length) {
                 audioTrackChanged = true;
             } else {
@@ -109,13 +110,13 @@ package org.mangui.hls.controller {
         }
 
         // merge audio track info from demux and from manifest into a unified list that will be exposed to upper layer
-        private function _audioTracksMerge() : void {
-            var i : int;
-            var defaultDemux : int = -1;
-            var defaultManifest : int = -1;
-            var defaultFound : Boolean = false;
-            var defaultTrackTitle : String;
-            var audioTrack_ : AudioTrack;
+        private function _audioTracksMerge():void {
+            var i:int;
+            var defaultDemux:int = -1;
+            var defaultManifest:int = -1;
+            var defaultFound:Boolean = false;
+            var defaultTrackTitle:String;
+            var audioTrack_:AudioTrack;
             _audioTracks = new Vector.<AudioTrack>();
 
             // first look for default audio track.
@@ -154,7 +155,7 @@ package org.mangui.hls.controller {
                         _audioTracks.push(audioTrack_);
                     }
                 }
-            } else if (defaultDemux != -1 ) {
+            } else if (defaultDemux != -1) {
                 audioTrack_ = _audioTracksfromDemux[defaultDemux];
                 defaultFound = true;
                 _audioTracks.push(audioTrack_);
@@ -189,15 +190,15 @@ package org.mangui.hls.controller {
         }
 
         /** triggered by demux, it should return the audio track to be parsed */
-        public function audioTrackSelectionHandler(audioTrackList : Vector.<AudioTrack>) : AudioTrack {
-            var audioTrackChanged : Boolean = false;
-            audioTrackList = audioTrackList.sort(function(a : AudioTrack, b : AudioTrack) : int {
+        public function audioTrackSelectionHandler(audioTrackList:Vector.<AudioTrack>):AudioTrack {
+            var audioTrackChanged:Boolean = false;
+            audioTrackList = audioTrackList.sort(function(a:AudioTrack, b:AudioTrack):int {
                 return a.id - b.id;
             });
             if (_audioTracksfromDemux.length != audioTrackList.length) {
                 audioTrackChanged = true;
             } else {
-                for (var idx : int = 0; idx < _audioTracksfromDemux.length; ++idx) {
+                for (var idx:int = 0; idx < _audioTracksfromDemux.length; ++idx) {
                     if (_audioTracksfromDemux[idx].id != audioTrackList[idx].id) {
                         audioTrackChanged = true;
                     }
@@ -210,8 +211,8 @@ package org.mangui.hls.controller {
             }
 
             /* if audio track not defined, or audio from external source (playlist)
-            return null (demux audio not selected) */
-            if (_audioTrackId == -1 ||  _audioTrackId >= _audioTracks.length || _audioTracks[_audioTrackId].source == AudioTrack.FROM_PLAYLIST) {
+             return null (demux audio not selected) */
+            if (_audioTrackId == -1 || _audioTrackId >= _audioTracks.length || _audioTracks[_audioTrackId].source == AudioTrack.FROM_PLAYLIST) {
                 return null;
             } else {
                 // source is demux,return selected audio track

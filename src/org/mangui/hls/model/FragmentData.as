@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls.model {
+
     import org.mangui.hls.utils.PTS;
     import org.mangui.hls.utils.AES;
     import org.mangui.hls.flv.FLVTag;
@@ -11,46 +12,46 @@ package org.mangui.hls.model {
     /** Fragment Data. **/
     public class FragmentData {
         /** valid fragment **/
-        public var valid : Boolean;
+        public var valid:Boolean;
         /** fragment byte array **/
-        public var bytes : ByteArray;
+        public var bytes:ByteArray;
         /** bytes Loaded **/
-        public var bytesLoaded : int;
+        public var bytesLoaded:int;
         /** AES decryption instance **/
-        public var decryptAES : AES;
+        public var decryptAES:AES;
         /** Start PTS of this chunk. **/
-        public var pts_start : Number;
+        public var pts_start:Number;
         /** computed Start PTS of this chunk. **/
-        public var pts_start_computed : Number;
+        public var pts_start_computed:Number;
         /** min/max audio/video PTS/DTS of this chunk. **/
-        public var pts_min_audio : Number;
-        public var pts_max_audio : Number;
-        public var pts_min_video : Number;
-        public var pts_max_video : Number;
-        public var dts_min : Number;
+        public var pts_min_audio:Number;
+        public var pts_max_audio:Number;
+        public var pts_min_video:Number;
+        public var pts_max_video:Number;
+        public var dts_min:Number;
         /** audio/video found ? */
-        public var audio_found : Boolean;
-        public var video_found : Boolean;
+        public var audio_found:Boolean;
+        public var video_found:Boolean;
         /** tag related stuff */
-        public var metadata_tag_injected : Boolean;
-        private var tags_pts_min_audio : Number;
-        private var tags_pts_max_audio : Number;
-        private var tags_pts_min_video : Number;
-        private var tags_pts_max_video : Number;
-        private var tags_audio_found : Boolean;
-        private var tags_video_found : Boolean;
-        public var tags : Vector.<FLVTag>;
+        public var metadata_tag_injected:Boolean;
+        private var tags_pts_min_audio:Number;
+        private var tags_pts_max_audio:Number;
+        private var tags_pts_min_video:Number;
+        private var tags_pts_max_video:Number;
+        private var tags_audio_found:Boolean;
+        private var tags_video_found:Boolean;
+        public var tags:Vector.<FLVTag>;
         /* video dimension */
-        public var video_width : int;
-        public var video_height : int;
+        public var video_width:int;
+        public var video_height:int;
         /* is fragment loaded selected by autolevel algo */
-        public var auto_level : Boolean;
+        public var auto_level:Boolean;
 
         /**  tag duration */
-        private var audio_tag_duration : Number;
-        private var video_tag_duration : Number;
-        private var audio_tag_last_dts : Number;
-        private var video_tag_last_dts : Number;
+        private var audio_tag_duration:Number;
+        private var video_tag_duration:Number;
+        private var audio_tag_last_dts:Number;
+        private var video_tag_last_dts:Number;
 
         /** Fragment metrics **/
         public function FragmentData() {
@@ -59,15 +60,15 @@ package org.mangui.hls.model {
             this.valid = true;
             this.video_width = 0;
             this.video_height = 0;
-        };
+        }
 
-        public function appendTags(tags : Vector.<FLVTag>) : void {
+        public function appendTags(tags:Vector.<FLVTag>):void {
             // Audio PTS/DTS normalization + min/max computation
-            for each (var tag : FLVTag in tags) {
+            for each (var tag:FLVTag in tags) {
                 tag.pts = PTS.normalize(pts_start_computed, tag.pts);
                 tag.dts = PTS.normalize(pts_start_computed, tag.dts);
                 dts_min = Math.min(dts_min, tag.dts);
-                switch( tag.type ) {
+                switch (tag.type) {
                     case FLVTag.AAC_RAW:
                     case FLVTag.AAC_HEADER:
                     case FLVTag.MP3_RAW:
@@ -100,7 +101,7 @@ package org.mangui.hls.model {
             }
         }
 
-        public function flushTags() : void {
+        public function flushTags():void {
             // clean-up tags
             tags = new Vector.<FLVTag>();
             tags_audio_found = tags_video_found = false;
@@ -110,7 +111,7 @@ package org.mangui.hls.model {
             audio_found = video_found = tags_audio_found = tags_video_found = false;
         }
 
-        public function shiftTags() : void {
+        public function shiftTags():void {
             tags = new Vector.<FLVTag>();
             if (tags_audio_found) {
                 tags_pts_min_audio = tags_pts_max_audio;
@@ -122,7 +123,7 @@ package org.mangui.hls.model {
             }
         }
 
-        public function get pts_min() : Number {
+        public function get pts_min():Number {
             if (audio_found) {
                 return pts_min_audio;
             } else {
@@ -130,7 +131,7 @@ package org.mangui.hls.model {
             }
         }
 
-        public function get pts_max() : Number {
+        public function get pts_max():Number {
             if (audio_found) {
                 return pts_max_audio;
             } else {
@@ -138,20 +139,20 @@ package org.mangui.hls.model {
             }
         }
 
-        public function get tag_duration() : Number {
-            var duration : Number;
+        public function get tag_duration():Number {
+            var duration:Number;
             if (audio_found) {
                 duration = audio_tag_duration;
             } else {
                 duration = video_tag_duration;
             }
-            if(isNaN(duration)) {
+            if (isNaN(duration)) {
                 duration = 0;
             }
             return duration;
         }
 
-        public function get tag_pts_min() : Number {
+        public function get tag_pts_min():Number {
             if (audio_found) {
                 return tags_pts_min_audio;
             } else {
@@ -159,7 +160,7 @@ package org.mangui.hls.model {
             }
         }
 
-        public function get tag_pts_max() : Number {
+        public function get tag_pts_max():Number {
             if (audio_found) {
                 return tags_pts_max_audio;
             } else {
@@ -167,7 +168,7 @@ package org.mangui.hls.model {
             }
         }
 
-        public function get tag_pts_start_offset() : Number {
+        public function get tag_pts_start_offset():Number {
             if (tags_audio_found) {
                 return tags_pts_min_audio - pts_min_audio;
             } else {
@@ -175,7 +176,7 @@ package org.mangui.hls.model {
             }
         }
 
-        public function get tag_pts_end_offset() : Number {
+        public function get tag_pts_end_offset():Number {
             if (tags_audio_found) {
                 return tags_pts_max_audio - pts_min_audio;
             } else {

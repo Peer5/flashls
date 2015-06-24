@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.chromeless {
+
     import flash.display.*;
     import flash.events.*;
     import flash.external.ExternalInterface;
@@ -15,6 +16,7 @@ package org.mangui.chromeless {
     import flash.system.Security;
     import flash.utils.getTimer;
     import flash.utils.setTimeout;
+
     import org.mangui.hls.event.HLSError;
     import org.mangui.hls.event.HLSEvent;
     import org.mangui.hls.HLS;
@@ -30,23 +32,23 @@ package org.mangui.chromeless {
     // import com.sociodox.theminer.*;
     public class ChromelessPlayer extends Sprite {
         /** reference to the framework. **/
-        protected var _hls : HLS;
+        protected var _hls:HLS;
         /** Sheet to place on top of the video. **/
-        protected var _sheet : Sprite;
+        protected var _sheet:Sprite;
         /** Reference to the stage video element. **/
-        protected var _stageVideo : StageVideo = null;
+        protected var _stageVideo:StageVideo = null;
         /** Reference to the video element. **/
-        protected var _video : Video = null;
+        protected var _video:Video = null;
         /** Video size **/
-        protected var _videoWidth : int = 0;
-        protected var _videoHeight : int = 0;
+        protected var _videoWidth:int = 0;
+        protected var _videoHeight:int = 0;
         /** current media position */
-        protected var _mediaPosition : Number;
-        protected var _duration : Number;
+        protected var _mediaPosition:Number;
+        protected var _duration:Number;
         /** URL autoload feature */
-        protected var _autoLoad : Boolean = false;
+        protected var _autoLoad:Boolean = false;
 
-        protected var _callbackName : String;
+        protected var _callbackName:String;
 
         /** Initialization. **/
         public function ChromelessPlayer() {
@@ -60,9 +62,9 @@ package org.mangui.chromeless {
             _setupExternalCallback();
 
             setTimeout(_pingJavascript, 50);
-        };
+        }
 
-        protected function _setupExternalGetters() : void {
+        protected function _setupExternalGetters():void {
             ExternalInterface.addCallback("getCurrentLevel", _getCurrentLevel);
             ExternalInterface.addCallback("getNextLevel", _getNextLevel);
             ExternalInterface.addCallback("getLoadLevel", _getLoadLevel);
@@ -92,9 +94,9 @@ package org.mangui.chromeless {
             ExternalInterface.addCallback("getAudioTrackList", _getAudioTrackList);
             ExternalInterface.addCallback("getAudioTrackId", _getAudioTrackId);
             ExternalInterface.addCallback("getStats", _getStats);
-        };
+        }
 
-        protected function _setupExternalCallers() : void {
+        protected function _setupExternalCallers():void {
             ExternalInterface.addCallback("playerLoad", _load);
             ExternalInterface.addCallback("playerPlay", _play);
             ExternalInterface.addCallback("playerPause", _pause);
@@ -119,14 +121,14 @@ package org.mangui.chromeless {
             ExternalInterface.addCallback("playerCapLeveltoStage", _setCapLeveltoStage);
             ExternalInterface.addCallback("playerSetAudioTrack", _setAudioTrack);
             ExternalInterface.addCallback("playerSetJSURLStream", _setJSURLStream);
-        };
+        }
 
-        protected function _setupExternalCallback() : void {
+        protected function _setupExternalCallback():void {
             // Pass in the JavaScript callback name in the `callback` FlashVars parameter.
             _callbackName = LoaderInfo(this.root.loaderInfo).parameters.callback.toString();
-        };
+        }
 
-        protected function _setupStage() : void {
+        protected function _setupStage():void {
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
             stage.fullScreenSourceRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
@@ -134,7 +136,7 @@ package org.mangui.chromeless {
             stage.addEventListener(Event.RESIZE, _onStageResize);
         }
 
-        protected function _setupSheet() : void {
+        protected function _setupSheet():void {
             // Draw sheet for catching clicks
             _sheet = new Sprite();
             _sheet.graphics.beginFill(0x000000, 0);
@@ -144,44 +146,44 @@ package org.mangui.chromeless {
             addChild(_sheet);
         }
 
-        protected function _trigger(event : String, ...args) : void {
+        protected function _trigger(event:String, ...args):void {
             if (ExternalInterface.available) {
                 ExternalInterface.call(_callbackName, event, args);
             }
-        };
+        }
 
         /** Notify javascript the framework is ready. **/
-        protected function _pingJavascript() : void {
+        protected function _pingJavascript():void {
             _trigger("ready", getTimer());
-        };
+        }
 
         /** Forward events from the framework. **/
-        protected function _completeHandler(event : HLSEvent) : void {
+        protected function _completeHandler(event:HLSEvent):void {
             _trigger("complete");
-        };
+        }
 
-        protected function _errorHandler(event : HLSEvent) : void {
-            var hlsError : HLSError = event.error;
+        protected function _errorHandler(event:HLSEvent):void {
+            var hlsError:HLSError = event.error;
             _trigger("error", hlsError.code, hlsError.url, hlsError.msg);
-        };
+        }
 
-        protected function _levelLoadedHandler(event : HLSEvent) : void {
+        protected function _levelLoadedHandler(event:HLSEvent):void {
             _trigger("levelLoaded", event.loadMetrics);
-        };
+        }
 
-        protected function _audioLevelLoadedHandler(event : HLSEvent) : void {
+        protected function _audioLevelLoadedHandler(event:HLSEvent):void {
             _trigger("audioLevelLoaded", event.loadMetrics);
-        };
+        }
 
-        protected function _fragmentLoadedHandler(event : HLSEvent) : void {
+        protected function _fragmentLoadedHandler(event:HLSEvent):void {
             _trigger("fragmentLoaded", event.loadMetrics);
-        };
+        }
 
-        protected function _fragmentPlayingHandler(event : HLSEvent) : void {
+        protected function _fragmentPlayingHandler(event:HLSEvent):void {
             _trigger("fragmentPlaying", event.playMetrics);
-        };
+        }
 
-        protected function _manifestLoadedHandler(event : HLSEvent) : void {
+        protected function _manifestLoadedHandler(event:HLSEvent):void {
             _duration = event.levels[_hls.startLevel].duration;
 
             if (_autoLoad) {
@@ -189,18 +191,18 @@ package org.mangui.chromeless {
             }
 
             _trigger("manifest", _duration, event.levels, event.loadMetrics);
-        };
+        }
 
-        protected function _mediaTimeHandler(event : HLSEvent) : void {
+        protected function _mediaTimeHandler(event:HLSEvent):void {
             _duration = event.mediatime.duration;
             _mediaPosition = event.mediatime.position;
             _trigger("position", event.mediatime);
 
-            var videoWidth : int = _video ? _video.videoWidth : _stageVideo.videoWidth;
-            var videoHeight : int = _video ? _video.videoHeight : _stageVideo.videoHeight;
+            var videoWidth:int = _video ? _video.videoWidth : _stageVideo.videoWidth;
+            var videoHeight:int = _video ? _video.videoHeight : _stageVideo.videoHeight;
 
             if (videoWidth && videoHeight) {
-                var changed : Boolean = _videoWidth != videoWidth || _videoHeight != videoHeight;
+                var changed:Boolean = _videoWidth != videoWidth || _videoHeight != videoHeight;
                 if (changed) {
                     _videoHeight = videoHeight;
                     _videoWidth = videoWidth;
@@ -208,244 +210,244 @@ package org.mangui.chromeless {
                     _trigger("videoSize", _videoWidth, _videoHeight);
                 }
             }
-        };
+        }
 
-        protected function _playbackStateHandler(event : HLSEvent) : void {
+        protected function _playbackStateHandler(event:HLSEvent):void {
             _trigger("state", event.state);
-        };
+        }
 
-        protected function _seekStateHandler(event : HLSEvent) : void {
+        protected function _seekStateHandler(event:HLSEvent):void {
             _trigger("seekState", event.state);
-        };
+        }
 
-        protected function _levelSwitchHandler(event : HLSEvent) : void {
+        protected function _levelSwitchHandler(event:HLSEvent):void {
             _trigger("switch", event.level);
-        };
+        }
 
-        protected function _audioTracksListChange(event : HLSEvent) : void {
+        protected function _audioTracksListChange(event:HLSEvent):void {
             _trigger("audioTracksListChange", _getAudioTrackList());
         }
 
-        protected function _audioTrackChange(event : HLSEvent) : void {
+        protected function _audioTrackChange(event:HLSEvent):void {
             _trigger("audioTrackChange", event.audioTrack);
         }
 
-        protected function _id3Updated(event : HLSEvent) : void {
+        protected function _id3Updated(event:HLSEvent):void {
             _trigger("id3Updated", event.ID3Data);
         }
 
         /** Javascript getters. **/
-        protected function _getCurrentLevel() : int {
+        protected function _getCurrentLevel():int {
             return _hls.currentLevel;
-        };
+        }
 
-        protected function _getNextLevel() : int {
+        protected function _getNextLevel():int {
             return _hls.nextLevel;
-        };
+        }
 
-        protected function _getLoadLevel() : int {
+        protected function _getLoadLevel():int {
             return _hls.loadLevel;
-        };
+        }
 
-        protected function _getLevels() : Vector.<Level> {
+        protected function _getLevels():Vector.<Level> {
             return _hls.levels;
-        };
+        }
 
-        protected function _getAutoLevel() : Boolean {
+        protected function _getAutoLevel():Boolean {
             return _hls.autoLevel;
-        };
+        }
 
-        protected function _getDuration() : Number {
+        protected function _getDuration():Number {
             return _duration;
-        };
+        }
 
-        protected function _getPosition() : Number {
+        protected function _getPosition():Number {
             return _hls.position;
-        };
+        }
 
-        protected function _getPlaybackState() : String {
+        protected function _getPlaybackState():String {
             return _hls.playbackState;
-        };
+        }
 
-        protected function _getSeekState() : String {
+        protected function _getSeekState():String {
             return _hls.seekState;
-        };
+        }
 
-        protected function _getType() : String {
+        protected function _getType():String {
             return _hls.type;
-        };
+        }
 
-        protected function _getbufferLength() : Number {
+        protected function _getbufferLength():Number {
             return _hls.stream.bufferLength;
-        };
+        }
 
-        protected function _getbackBufferLength() : Number {
+        protected function _getbackBufferLength():Number {
             return _hls.stream.backBufferLength;
-        };
+        }
 
-        protected function _getmaxBufferLength() : Number {
+        protected function _getmaxBufferLength():Number {
             return HLSSettings.maxBufferLength;
-        };
+        }
 
-        protected function _getminBufferLength() : Number {
+        protected function _getminBufferLength():Number {
             return HLSSettings.minBufferLength;
-        };
+        }
 
-        protected function _getlowBufferLength() : Number {
+        protected function _getlowBufferLength():Number {
             return HLSSettings.lowBufferLength;
-        };
+        }
 
-        protected function _getmaxBackBufferLength() : Number {
+        protected function _getmaxBackBufferLength():Number {
             return HLSSettings.maxBackBufferLength;
-        };
+        }
 
-        protected function _getflushLiveURLCache() : Boolean {
+        protected function _getflushLiveURLCache():Boolean {
             return HLSSettings.flushLiveURLCache;
-        };
+        }
 
-        protected function _getstartFromLevel() : int {
+        protected function _getstartFromLevel():int {
             return HLSSettings.startFromLevel;
-        };
+        }
 
-        protected function _getseekFromLevel() : int {
+        protected function _getseekFromLevel():int {
             return HLSSettings.seekFromLevel;
-        };
+        }
 
-        protected function _getLogDebug() : Boolean {
+        protected function _getLogDebug():Boolean {
             return HLSSettings.logDebug;
-        };
+        }
 
-        protected function _getLogDebug2() : Boolean {
+        protected function _getLogDebug2():Boolean {
             return HLSSettings.logDebug2;
-        };
+        }
 
-        protected function _getUseHardwareVideoDecoder() : Boolean {
+        protected function _getUseHardwareVideoDecoder():Boolean {
             return HLSSettings.useHardwareVideoDecoder;
-        };
+        }
 
-        protected function _getCapLeveltoStage() : Boolean {
+        protected function _getCapLeveltoStage():Boolean {
             return HLSSettings.capLevelToStage;
-        };
+        }
 
-        protected function _getAutoLevelCapping() : int {
+        protected function _getAutoLevelCapping():int {
             return _hls.autoLevelCapping;
-        };
+        }
 
-        protected function _getJSURLStream() : Boolean {
+        protected function _getJSURLStream():Boolean {
             return (_hls.URLstream is JSURLStream);
-        };
+        }
 
-        protected function _getPlayerVersion() : Number {
+        protected function _getPlayerVersion():Number {
             return 3;
-        };
+        }
 
-        protected function _getAudioTrackList() : Array {
-            var list : Array = [];
-            var vec : Vector.<AudioTrack> = _hls.audioTracks;
-            for (var i : Object in vec) {
+        protected function _getAudioTrackList():Array {
+            var list:Array = [];
+            var vec:Vector.<AudioTrack> = _hls.audioTracks;
+            for (var i:Object in vec) {
                 list.push(vec[i]);
             }
             return list;
-        };
+        }
 
-        protected function _getAudioTrackId() : int {
+        protected function _getAudioTrackId():int {
             return _hls.audioTrack;
-        };
+        }
 
-        protected function _getStats() : Stats {
+        protected function _getStats():Stats {
             return _hls.stats;
-        };
+        }
 
         /** Javascript calls. **/
-        protected function _load(url : String) : void {
+        protected function _load(url:String):void {
             _hls.load(url);
-        };
+        }
 
-        protected function _play(position : Number = -1) : void {
+        protected function _play(position:Number = -1):void {
             _hls.stream.play(null, position);
-        };
+        }
 
-        protected function _pause() : void {
+        protected function _pause():void {
             _hls.stream.pause();
-        };
+        }
 
-        protected function _resume() : void {
+        protected function _resume():void {
             _hls.stream.resume();
-        };
+        }
 
-        protected function _seek(position : Number) : void {
+        protected function _seek(position:Number):void {
             _hls.stream.seek(position);
-        };
+        }
 
-        protected function _stop() : void {
+        protected function _stop():void {
             _hls.stream.close();
-        };
+        }
 
-        protected function _volume(percent : Number) : void {
+        protected function _volume(percent:Number):void {
             _hls.stream.soundTransform = new SoundTransform(percent / 100);
-        };
+        }
 
-        protected function _setCurrentLevel(level : int) : void {
+        protected function _setCurrentLevel(level:int):void {
             _hls.currentLevel = level;
-        };
+        }
 
-        protected function _setNextLevel(level : int) : void {
+        protected function _setNextLevel(level:int):void {
             _hls.nextLevel = level;
-        };
+        }
 
-        protected function _setLoadLevel(level : int) : void {
+        protected function _setLoadLevel(level:int):void {
             _hls.loadLevel = level;
-        };
+        }
 
-        protected function _setmaxBufferLength(newLen : Number) : void {
+        protected function _setmaxBufferLength(newLen:Number):void {
             HLSSettings.maxBufferLength = newLen;
-        };
+        }
 
-        protected function _setminBufferLength(newLen : Number) : void {
+        protected function _setminBufferLength(newLen:Number):void {
             HLSSettings.minBufferLength = newLen;
-        };
+        }
 
-        protected function _setlowBufferLength(newLen : Number) : void {
+        protected function _setlowBufferLength(newLen:Number):void {
             HLSSettings.lowBufferLength = newLen;
-        };
+        }
 
-        protected function _setbackBufferLength(newLen : Number) : void {
+        protected function _setbackBufferLength(newLen:Number):void {
             HLSSettings.maxBackBufferLength = newLen;
-        };
+        }
 
-        protected function _setflushLiveURLCache(flushLiveURLCache : Boolean) : void {
+        protected function _setflushLiveURLCache(flushLiveURLCache:Boolean):void {
             HLSSettings.flushLiveURLCache = flushLiveURLCache;
-        };
+        }
 
-        protected function _setstartFromLevel(startFromLevel : int) : void {
+        protected function _setstartFromLevel(startFromLevel:int):void {
             HLSSettings.startFromLevel = startFromLevel;
-        };
+        }
 
-        protected function _setseekFromLevel(seekFromLevel : int) : void {
+        protected function _setseekFromLevel(seekFromLevel:int):void {
             HLSSettings.seekFromLevel = seekFromLevel;
-        };
+        }
 
-        protected function _setLogDebug(debug : Boolean) : void {
+        protected function _setLogDebug(debug:Boolean):void {
             HLSSettings.logDebug = debug;
-        };
+        }
 
-        protected function _setLogDebug2(debug2 : Boolean) : void {
+        protected function _setLogDebug2(debug2:Boolean):void {
             HLSSettings.logDebug2 = debug2;
-        };
+        }
 
-        protected function _setUseHardwareVideoDecoder(value : Boolean) : void {
+        protected function _setUseHardwareVideoDecoder(value:Boolean):void {
             HLSSettings.useHardwareVideoDecoder = value;
-        };
+        }
 
-        protected function _setCapLeveltoStage(value : Boolean) : void {
+        protected function _setCapLeveltoStage(value:Boolean):void {
             HLSSettings.capLevelToStage = value;
-        };
+        }
 
-        protected function _setAutoLevelCapping(value : int) : void {
+        protected function _setAutoLevelCapping(value:int):void {
             _hls.autoLevelCapping = value;
-        };
+        }
 
-        protected function _setJSURLStream(jsURLstream : Boolean) : void {
+        protected function _setJSURLStream(jsURLstream:Boolean):void {
             if (jsURLstream) {
                 _hls.URLstream = JSURLStream as Class;
                 _hls.URLloader = JSURLLoader as Class;
@@ -457,28 +459,30 @@ package org.mangui.chromeless {
                 _hls.URLstream = URLStream as Class;
                 _hls.URLloader = URLLoader as Class;
             }
-        };
+        }
 
-        protected function _setAudioTrack(val : int) : void {
-            if (val == _hls.audioTrack) return;
+        protected function _setAudioTrack(val:int):void {
+            if (val == _hls.audioTrack) {
+                return;
+            }
             _hls.audioTrack = val;
             if (!isNaN(_mediaPosition)) {
                 _hls.stream.seek(_mediaPosition);
             }
-        };
+        }
 
         /** Mouse click handler. **/
-        protected function _clickHandler(event : MouseEvent) : void {
+        protected function _clickHandler(event:MouseEvent):void {
             if (stage.displayState == StageDisplayState.FULL_SCREEN_INTERACTIVE || stage.displayState == StageDisplayState.FULL_SCREEN) {
                 stage.displayState = StageDisplayState.NORMAL;
             } else {
                 stage.displayState = StageDisplayState.FULL_SCREEN;
             }
-        };
+        }
 
         /** StageVideo detector. **/
-        protected function _onStageVideoState(event : StageVideoAvailabilityEvent) : void {
-            var available : Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
+        protected function _onStageVideoState(event:StageVideoAvailabilityEvent):void {
+            var available:Boolean = (event.availability == StageVideoAvailability.AVAILABLE);
             _hls = new HLS();
             _hls.stage = stage;
             _hls.addEventListener(HLSEvent.PLAYBACK_COMPLETE, _completeHandler);
@@ -510,30 +514,30 @@ package org.mangui.chromeless {
             }
             stage.removeEventListener(StageVideoAvailabilityEvent.STAGE_VIDEO_AVAILABILITY, _onStageVideoState);
 
-            var autoLoadUrl : String = root.loaderInfo.parameters.url as String;
+            var autoLoadUrl:String = root.loaderInfo.parameters.url as String;
             if (autoLoadUrl != null) {
                 _autoLoad = true;
                 _load(autoLoadUrl);
             }
-        };
+        }
 
-        private function _onStageVideoStateChange(event : StageVideoEvent) : void {
+        private function _onStageVideoStateChange(event:StageVideoEvent):void {
             Log.info("Video decoding:" + event.status);
         }
 
-        private function _onVideoStateChange(event : VideoEvent) : void {
+        private function _onVideoStateChange(event:VideoEvent):void {
             Log.info("Video decoding:" + event.status);
         }
 
-        protected function _onStageResize(event : Event) : void {
+        protected function _onStageResize(event:Event):void {
             stage.fullScreenSourceRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
             _sheet.width = stage.stageWidth;
             _sheet.height = stage.stageHeight;
             _resize();
-        };
+        }
 
-        protected function _resize() : void {
-            var rect : Rectangle;
+        protected function _resize():void {
+            var rect:Rectangle;
             rect = ScaleVideo.resizeRectangle(_videoWidth, _videoHeight, stage.stageWidth, stage.stageHeight);
             // resize video
             if (_video) {

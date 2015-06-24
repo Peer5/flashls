@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls.demux {
+
     import org.mangui.hls.model.AudioTrack;
     import org.mangui.hls.flv.FLVTag;
 
@@ -15,24 +16,24 @@ package org.mangui.hls.demux {
      **/
     public class AACDemuxer implements Demuxer {
         /** ADTS Syncword (0xFFF), ID:0 (MPEG4), layer (00) and protection_absent (1:no CRC).**/
-        private static const SYNCWORD : uint = 0xFFF1;
+        private static const SYNCWORD:uint = 0xFFF1;
         /** ADTS Syncword (0xFFF), ID:1 (MPEG2), layer (00) and protection_absent (1: no CRC).**/
-        private static const SYNCWORD_2 : uint = 0xFFF9;
+        private static const SYNCWORD_2:uint = 0xFFF9;
         /** ADTS Syncword (0xFFF), ID:1 (MPEG2), layer (00) and protection_absent (0: CRC).**/
-        private static const SYNCWORD_3 : uint = 0xFFF8;
+        private static const SYNCWORD_3:uint = 0xFFF8;
         /** ADTS/ADIF sample rates index. **/
-        private static const RATES : Array = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350];
+        private static const RATES:Array = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350];
         /** ADIF profile index (ADTS doesn't have Null). **/
-        private static const PROFILES : Array = ['Null', 'Main', 'LC', 'SSR', 'LTP', 'SBR'];
+        private static const PROFILES:Array = ['Null', 'Main', 'LC', 'SSR', 'LTP', 'SBR'];
         /** Byte data to be read **/
-        private var _data : ByteArray;
+        private var _data:ByteArray;
         /* callback functions for audio selection, and parsing progress/complete */
-        private var _callback_audioselect : Function;
-        private var _callback_progress : Function;
-        private var _callback_complete : Function;
+        private var _callback_audioselect:Function;
+        private var _callback_progress:Function;
+        private var _callback_complete:Function;
 
         /** append new data */
-        public function append(data : ByteArray) : void {
+        public function append(data:ByteArray):void {
             if (_data == null) {
                 _data = new ByteArray();
             }
@@ -40,36 +41,36 @@ package org.mangui.hls.demux {
         }
 
         /** cancel demux operation */
-        public function cancel() : void {
+        public function cancel():void {
             _data = null;
         }
 
-        public function get audioExpected() : Boolean {
+        public function get audioExpected():Boolean {
             return true;
         }
 
-        public function get videoExpected() : Boolean {
+        public function get videoExpected():Boolean {
             return false;
         }
 
-        public function notifycomplete() : void {
+        public function notifycomplete():void {
             CONFIG::LOGGING {
                 Log.debug("AAC: extracting AAC tags");
             }
-            var audioTags : Vector.<FLVTag> = new Vector.<FLVTag>();
+            var audioTags:Vector.<FLVTag> = new Vector.<FLVTag>();
             /* parse AAC, convert Elementary Streams to TAG */
             _data.position = 0;
-            var id3 : ID3 = new ID3(_data);
+            var id3:ID3 = new ID3(_data);
             // AAC should contain ID3 tag filled with a timestamp
-            var frames : Vector.<AudioFrame> = AACDemuxer.getFrames(_data, _data.position);
-            var adif : ByteArray = getADIF(_data, id3.len);
-            var adifTag : FLVTag = new FLVTag(FLVTag.AAC_HEADER, id3.timestamp, id3.timestamp, true);
+            var frames:Vector.<AudioFrame> = AACDemuxer.getFrames(_data, _data.position);
+            var adif:ByteArray = getADIF(_data, id3.len);
+            var adifTag:FLVTag = new FLVTag(FLVTag.AAC_HEADER, id3.timestamp, id3.timestamp, true);
             adifTag.push(adif, 0, adif.length);
             audioTags.push(adifTag);
 
-            var audioTag : FLVTag;
-            var stamp : uint;
-            var i : int = 0;
+            var audioTag:FLVTag;
+            var stamp:uint;
+            var i:int = 0;
 
             while (i < frames.length) {
                 stamp = Math.round(id3.timestamp + i * 1024 * 1000 / frames[i].rate);
@@ -82,7 +83,7 @@ package org.mangui.hls.demux {
                 audioTags.push(audioTag);
                 i++;
             }
-            var audiotracks : Vector.<AudioTrack> = new Vector.<AudioTrack>();
+            var audiotracks:Vector.<AudioTrack> = new Vector.<AudioTrack>();
             audiotracks.push(new AudioTrack('AAC ES', AudioTrack.FROM_DEMUX, 0, true, true));
             // report unique audio track. dont check return value as obviously the track will be selected
             _callback_audioselect(audiotracks);
@@ -94,20 +95,20 @@ package org.mangui.hls.demux {
             _callback_complete();
         }
 
-        public function AACDemuxer(callback_audioselect : Function, callback_progress : Function, callback_complete : Function) : void {
+        public function AACDemuxer(callback_audioselect:Function, callback_progress:Function, callback_complete:Function):void {
             _callback_audioselect = callback_audioselect;
             _callback_progress = callback_progress;
             _callback_complete = callback_complete;
-        };
+        }
 
-        public static function probe(data : ByteArray) : Boolean {
-            var pos : uint = data.position;
-            var id3 : ID3 = new ID3(data);
+        public static function probe(data:ByteArray):Boolean {
+            var pos:uint = data.position;
+            var id3:ID3 = new ID3(data);
             // AAC should contain ID3 tag filled with a timestamp
             if (id3.hasTimestamp) {
                 while (data.bytesAvailable > 1) {
                     // Check for ADTS header
-                    var short : uint = data.readUnsignedShort();
+                    var short:uint = data.readUnsignedShort();
                     if (short == SYNCWORD || short == SYNCWORD_2 || short == SYNCWORD_3) {
                         data.position = pos;
                         return true;
@@ -121,9 +122,9 @@ package org.mangui.hls.demux {
         }
 
         /** Get ADIF header from ADTS stream. **/
-        public static function getADIF(adts : ByteArray, position : uint) : ByteArray {
+        public static function getADIF(adts:ByteArray, position:uint):ByteArray {
             adts.position = position;
-            var short : uint;
+            var short:uint;
             // we need at least 6 bytes, 2 for sync word, 4 for frame length
             while ((adts.bytesAvailable > 5) && (short != SYNCWORD) && (short != SYNCWORD_2) && (short != SYNCWORD_3)) {
                 short = adts.readUnsignedShort();
@@ -131,7 +132,7 @@ package org.mangui.hls.demux {
             }
             adts.position++;
             if (short == SYNCWORD || short == SYNCWORD_2 || short == SYNCWORD_3) {
-                var profile : uint = (adts.readByte() & 0xF0) >> 6;
+                var profile:uint = (adts.readByte() & 0xF0) >> 6;
                 // Correcting zero-index of ADIF and Flash playing only LC/HE.
                 if (profile > 3) {
                     profile = 5;
@@ -139,14 +140,14 @@ package org.mangui.hls.demux {
                     profile = 2;
                 }
                 adts.position--;
-                var srate : uint = (adts.readByte() & 0x3C) >> 2;
+                var srate:uint = (adts.readByte() & 0x3C) >> 2;
                 adts.position--;
-                var channels : uint = (adts.readShort() & 0x01C0) >> 6;
+                var channels:uint = (adts.readShort() & 0x01C0) >> 6;
             } else {
                 throw new Error("Stream did not start with ADTS header.");
             }
             // 5 bits profile + 4 bits samplerate + 4 bits channels.
-            var adif : ByteArray = new ByteArray();
+            var adif:ByteArray = new ByteArray();
             adif.writeByte((profile << 3) + (srate >> 1));
             adif.writeByte((srate << 7) + (channels << 3));
             CONFIG::LOGGING {
@@ -156,22 +157,22 @@ package org.mangui.hls.demux {
             adts.position -= 4;
             adif.position = 0;
             return adif;
-        };
+        }
 
         /** Get a list with AAC frames from ADTS stream. **/
-        public static function getFrames(adts : ByteArray, position : uint) : Vector.<AudioFrame> {
-            var frames : Vector.<AudioFrame> = new Vector.<AudioFrame>();
-            var frame_start : uint;
-            var frame_length : uint;
-            var id3 : ID3 = new ID3(adts);
+        public static function getFrames(adts:ByteArray, position:uint):Vector.<AudioFrame> {
+            var frames:Vector.<AudioFrame> = new Vector.<AudioFrame>();
+            var frame_start:uint;
+            var frame_length:uint;
+            var id3:ID3 = new ID3(adts);
             position += id3.len;
             // Get raw AAC frames from audio stream.
             adts.position = position;
-            var samplerate : uint;
+            var samplerate:uint;
             // we need at least 6 bytes, 2 for sync word, 4 for frame length
             while (adts.bytesAvailable > 5) {
                 // Check for ADTS header
-                var short : uint = adts.readUnsignedShort();
+                var short:uint = adts.readUnsignedShort();
                 if (short == SYNCWORD || short == SYNCWORD_2 || short == SYNCWORD_3) {
                     // Store samplerate for offsetting timestamps.
                     if (!samplerate) {
@@ -183,7 +184,7 @@ package org.mangui.hls.demux {
                         frames.push(new AudioFrame(frame_start, frame_length, frame_length, samplerate));
                     }
                     // protection_absent=1, crc_len = 0,protection_absent=0,crc_len=2
-                    var crc_len : int = (1 - (short & 0x1)) << 1;
+                    var crc_len:int = (1 - (short & 0x1)) << 1;
                     // ADTS header is 7+crc_len bytes.
                     frame_length = ((adts.readUnsignedInt() & 0x0003FFE0) >> 5) - 7 - crc_len;
                     frame_start = adts.position + 1 + crc_len;
@@ -197,8 +198,8 @@ package org.mangui.hls.demux {
             }
             if (frame_start) {
                 // check if we have a complete frame available at the end, i.e. last found frame is fitting in this PES packet
-                var overflow : int = frame_start + frame_length - adts.length;
-                if (overflow <= 0 ) {
+                var overflow:int = frame_start + frame_length - adts.length;
+                if (overflow <= 0) {
                     // no overflow, Write raw AAC after last header.
                     frames.push(new AudioFrame(frame_start, frame_length, frame_length, samplerate));
                 }
@@ -215,6 +216,6 @@ package org.mangui.hls.demux {
             }
             adts.position = position;
             return frames;
-        };
+        }
     }
 }

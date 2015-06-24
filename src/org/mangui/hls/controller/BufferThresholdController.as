@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package org.mangui.hls.controller {
+
     import org.mangui.hls.constant.HLSLoaderTypes;
     import org.mangui.hls.event.HLSEvent;
     import org.mangui.hls.event.HLSLoadMetrics;
@@ -15,29 +16,29 @@ package org.mangui.hls.controller {
      */
     public class BufferThresholdController {
         /** Reference to the HLS controller. **/
-        private var _hls : HLS;
+        private var _hls:HLS;
         // max nb of samples used for bw checking. the bigger it is, the more conservative it is.
-        private static const MAX_SAMPLES : int = 30;
-        private var _bw : Vector.<Number>;
-        private var _nbSamples : uint;
-        private var _targetduration : Number;
-        private var _minBufferLength : Number;
+        private static const MAX_SAMPLES:int = 30;
+        private var _bw:Vector.<Number>;
+        private var _nbSamples:uint;
+        private var _targetduration:Number;
+        private var _minBufferLength:Number;
 
         /** Create the loader. **/
-        public function BufferThresholdController(hls : HLS) : void {
+        public function BufferThresholdController(hls:HLS):void {
             _hls = hls;
             _hls.addEventListener(HLSEvent.MANIFEST_LOADED, _manifestLoadedHandler);
             _hls.addEventListener(HLSEvent.TAGS_LOADED, _fragmentLoadedHandler);
             _hls.addEventListener(HLSEvent.FRAGMENT_LOADED, _fragmentLoadedHandler);
-        };
+        }
 
-        public function dispose() : void {
+        public function dispose():void {
             _hls.removeEventListener(HLSEvent.MANIFEST_LOADED, _manifestLoadedHandler);
             _hls.removeEventListener(HLSEvent.TAGS_LOADED, _fragmentLoadedHandler);
             _hls.removeEventListener(HLSEvent.FRAGMENT_LOADED, _fragmentLoadedHandler);
         }
 
-        public function get minBufferLength() : Number {
+        public function get minBufferLength():Number {
             if (HLSSettings.minBufferLength == -1) {
                 return _minBufferLength;
             } else {
@@ -45,7 +46,7 @@ package org.mangui.hls.controller {
             }
         }
 
-        public function get lowBufferLength() : Number {
+        public function get lowBufferLength():Number {
             if (HLSSettings.minBufferLength == -1) {
                 // in automode, low buffer threshold should be less than min auto buffer
                 return Math.min(minBufferLength / 2, HLSSettings.lowBufferLength);
@@ -54,30 +55,30 @@ package org.mangui.hls.controller {
             }
         }
 
-        private function _manifestLoadedHandler(event : HLSEvent) : void {
+        private function _manifestLoadedHandler(event:HLSEvent):void {
             _nbSamples = 0;
             _targetduration = event.levels[_hls.startLevel].targetduration;
-            _bw = new Vector.<Number>(MAX_SAMPLES,true);
+            _bw = new Vector.<Number>(MAX_SAMPLES, true);
             _minBufferLength = _targetduration;
-        };
+        }
 
-        private function _fragmentLoadedHandler(event : HLSEvent) : void {
-            var metrics : HLSLoadMetrics = event.loadMetrics;
+        private function _fragmentLoadedHandler(event:HLSEvent):void {
+            var metrics:HLSLoadMetrics = event.loadMetrics;
             // only monitor main fragment metrics for buffer threshold computing
-            if(metrics.type == HLSLoaderTypes.FRAGMENT_MAIN) {
-                var cur_bw : Number = metrics.bandwidth;
+            if (metrics.type == HLSLoaderTypes.FRAGMENT_MAIN) {
+                var cur_bw:Number = metrics.bandwidth;
                 _bw[_nbSamples % MAX_SAMPLES] = cur_bw;
                 _nbSamples++;
 
                 // compute min bw on MAX_SAMPLES
-                var minBw : Number = Number.POSITIVE_INFINITY;
-                var samples_max : int = Math.min(_nbSamples, MAX_SAMPLES);
-                for (var i : int = 0; i < samples_max; i++) {
+                var minBw:Number = Number.POSITIVE_INFINITY;
+                var samples_max:int = Math.min(_nbSamples, MAX_SAMPLES);
+                for (var i:int = 0; i < samples_max; i++) {
                     minBw = Math.min(minBw, _bw[i]);
                 }
 
                 // give more weight to current bandwidth
-                var bw_ratio : Number = 2 * cur_bw / (minBw + cur_bw);
+                var bw_ratio:Number = 2 * cur_bw / (minBw + cur_bw);
 
                 /* predict time to dl next segment using a conservative approach.
                  *
@@ -96,7 +97,7 @@ package org.mangui.hls.controller {
                 CONFIG::LOGGING {
                     Log.debug2("AutoBufferController:minBufferLength:" + _minBufferLength);
                 }
-            };
+            }
         }
     }
 }
