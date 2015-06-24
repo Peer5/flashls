@@ -148,7 +148,7 @@ package org.mangui.hls.flv {
             }
             return length;
         }
-        ;
+
         CONFIG::LOGGING {
             public function get typeString():String {
                 switch (type) {

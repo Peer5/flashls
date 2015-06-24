@@ -698,7 +698,6 @@ package org.mangui.hls.loader {
                     }
                     // check whether there is a discontinuity between last segment and new segment
                     _hasDiscontinuity = ((frag.continuity != frag_previous.continuity) || _fragSkipping);
-                    ;
                     log_prefix = "Loading       ";
                 }
             }

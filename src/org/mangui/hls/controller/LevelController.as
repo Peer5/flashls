@@ -47,7 +47,6 @@ package org.mangui.hls.controller {
             _hls.addEventListener(HLSEvent.MANIFEST_LOADED, _manifestLoadedHandler);
             _hls.addEventListener(HLSEvent.FRAGMENT_LOADED, _fragmentLoadedHandler);
         }
-        ;
 
         public function dispose():void {
             _fpsController.dispose();
@@ -118,7 +117,6 @@ package org.mangui.hls.controller {
                 _maxUniqueLevels = _maxLevelsWithUniqueDimensions;
             }
         }
-        ;
 
         public function getbestlevel(downloadBandwidth:Number):int {
             var max_level:int = _maxLevel;
