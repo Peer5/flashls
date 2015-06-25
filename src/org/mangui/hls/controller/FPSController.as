@@ -19,77 +19,98 @@
       /** Reference to the HLS controller. **/
       private var _hls : HLS;
       private var _timer : Timer;
-      private var _lastTimer : int;
-      private var _lastdroppedFrames : int;
-      private var _hiddenVideo : Boolean;
+      private var _ticker:Timer;
+      private var _lastTimer : int = 0;
+      private var _lastTick:int = 0;
+      private var _lastFrames:int = 0;
+      private var _lastDroppedFrames : int = 0;
+      private var _hiddenVideo : Boolean = false;
+      private var _totalFrames:int = 0;
+      private var _activeCounter:int = 0;
 
       public function FPSController(hls : HLS) {
           _hls = hls;
           _hls.addEventListener(HLSEvent.PLAYBACK_STATE, _playbackStateHandler);
-          _timer = new Timer(50,0);
+          _timer = new Timer(1000,0);
           _timer.addEventListener(TimerEvent.TIMER, _checkFPS);
+          _ticker = new Timer(0, 0);
+          _ticker.addEventListener(TimerEvent.TIMER, _tick);
+          _ticker.start();
       }
 
       public function dispose() : void {
           _hls.removeEventListener(HLSEvent.PLAYBACK_STATE, _playbackStateHandler);
+          _hls.stage.removeEventListener(Event.ENTER_FRAME, _enterFrame);
       }
 
       private function _playbackStateHandler(event : HLSEvent) : void {
         switch(event.state) {
           case HLSPlayStates.PLAYING:
             // start fps check timer when switching to playing state
-            _lastTimer = 0;
-            _hiddenVideo = true;
+            _lastTimer = getTimer();
+            _hiddenVideo = false;
             _timer.start();
             break;
           default:
             if(_timer.running)  {
               // stop it in all other cases
-              _lastTimer = 0;
+              _lastTimer = getTimer();
               _hiddenVideo = true;
               _timer.stop();
-                CONFIG::LOGGING {
-                  Log.info("video not playing, stop monitoring dropped FPS");
-                }
+              CONFIG::LOGGING {
+                Log.info("video not playing, stop monitoring dropped FPS");
+              }
             }
             break;
         }
-      };
+      }
 
       private function _checkFPS(e : Event) : void {
-        var newTimer : int = getTimer();
-        if(_lastTimer) {
-          var delta:int = newTimer - _lastTimer;
-          /* according to http://www.kaourantin.net/2010/03/timing-it-right.html, when player is hidden, Flash timer only runs at 8Hz.
-             here we armed our timer to 50ms, if delta time between 2 runs is more than 100ms, consider that our player is hidden ...
-          */
-          if(delta && delta < 100) {
-            if(_hiddenVideo == false) {
-              var deltaDroppedFrames : int = _hls.stream.info.droppedFrames - _lastdroppedFrames;
-              var dropFPS : Number = 1000*deltaDroppedFrames/delta;
-              if(dropFPS > 1) {
-                CONFIG::LOGGING {
-                  Log.warn("!!! display/dropped FPS > 1, dispatch event:" + _hls.stream.currentFPS.toFixed(2) + "/" + dropFPS.toFixed(2));
-                  _hls.dispatchEvent(new HLSEvent(HLSEvent.FPS_DROP, _hls.currentLevel));
-                }
-              }
-            } else {
-                CONFIG::LOGGING {
-                  Log.info("video displayed,start monitoring dropped FPS");
-                }
-              _hiddenVideo = false;
-            }
-          } else {
-            if(_hiddenVideo == false) {
-              _hiddenVideo = true;
-              CONFIG::LOGGING {
-                Log.info("video hidden,stop monitoring dropped FPS,delta:"+delta);
-              }
+        var now:int = getTimer();
+        var currentDroppedFrames:int = _hls.stream.info.droppedFrames;
+        var deltaDroppedFrames:int = currentDroppedFrames - _lastDroppedFrames;
+        var deltaTime:int = now - _lastTimer;
+        var deltaFrames:int = _totalFrames - _lastFrames;
+        var realFPS:Number = (deltaFrames / deltaTime) * 1000;
+        var droppedFPS:Number = (deltaDroppedFrames / deltaTime) * 1000;
+        var sum:Number = realFPS + droppedFPS;
+        var ratio:Number = droppedFPS / sum;
+
+
+        if (_active) {
+          if (ratio > 0.2) {
+            _hls.dispatchEvent(new HLSEvent(HLSEvent.FPS_DROP, realFPS, droppedFPS));
+            CONFIG::LOGGING {
+              Log.warn('FPS drop - current: ' + realFPS + ', dropped: ' + droppedFPS);
             }
           }
         }
-        _lastTimer = newTimer;
-        _lastdroppedFrames = _hls.stream.info.droppedFrames;
+
+        _lastTimer = now;
+        _lastFrames = _totalFrames;
+        _lastDroppedFrames = currentDroppedFrames;
+      }
+
+      private function _enterFrame(e:Event):void {
+        _totalFrames++;
+      }
+
+      private function _tick(e:Event):void {
+        var now:int = getTimer();
+        var delta:int = now - _lastTick;
+
+        if (delta > 60) {
+          _hiddenVideo = false;
+          _activeCounter = 0;
+        } else if (_active == false) { // delta <= 60
+          _activeCounter++;
+
+          if (_activeCounter == 50) {
+            _hiddenVideo = true;
+            _activeCounter = 0;
+          }
+        }
+        _lastTick = now;
       }
   }
 }

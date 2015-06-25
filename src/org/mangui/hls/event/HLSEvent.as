@@ -83,6 +83,10 @@ package org.mangui.hls.event {
         public var audioTrack : int;
         /** a complete ID3 payload from PES, as a hex dump **/
         public var ID3Data : String;
+        /** The real FPS **/
+        public var realFPS : Number;
+        /** The dropped FPS **/
+        public var droppedFPS : Number;
 
         /** Assign event parameter and dispatch. **/
         public function HLSEvent(type : String, parameter : *=null, parameter2 : *=null) {
@@ -129,7 +133,8 @@ package org.mangui.hls.event {
                     playMetrics = parameter as HLSPlayMetrics;
                     break;
                 case HLSEvent.FPS_DROP:
-                    level = parameter as int;
+                    realFPS = parameter as Number;
+                    droppedFPS = parameter as Number;
                     break;
             }
             super(type, false, false);
