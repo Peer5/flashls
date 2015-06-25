@@ -24,7 +24,7 @@
       private var _lastTick:int = 0;
       private var _lastFrames:int = 0;
       private var _lastDroppedFrames : int = 0;
-      private var _hiddenVideo : Boolean = false;
+      private var _active : Boolean = false;
       private var _totalFrames:int = 0;
       private var _activeCounter:int = 0;
 
@@ -35,7 +35,6 @@
           _timer.addEventListener(TimerEvent.TIMER, _checkFPS);
           _ticker = new Timer(0, 0);
           _ticker.addEventListener(TimerEvent.TIMER, _tick);
-          _ticker.start();
       }
 
       public function dispose() : void {
@@ -48,15 +47,19 @@
           case HLSPlayStates.PLAYING:
             // start fps check timer when switching to playing state
             _lastTimer = getTimer();
-            _hiddenVideo = false;
             _timer.start();
+            _ticker.start();
+            _active = false; // this will get changed automatically after a few ticks
             break;
           default:
             if(_timer.running)  {
               // stop it in all other cases
               _lastTimer = getTimer();
-              _hiddenVideo = true;
               _timer.stop();
+
+              if (_ticker.running) {
+                _ticker.stop();
+              }
               CONFIG::LOGGING {
                 Log.info("video not playing, stop monitoring dropped FPS");
               }
@@ -75,7 +78,6 @@
         var droppedFPS:Number = (deltaDroppedFrames / deltaTime) * 1000;
         var sum:Number = realFPS + droppedFPS;
         var ratio:Number = droppedFPS / sum;
-
 
         if (_active) {
           if (ratio > 0.2) {
@@ -100,13 +102,13 @@
         var delta:int = now - _lastTick;
 
         if (delta > 60) {
-          _hiddenVideo = false;
+          _active = false;
           _activeCounter = 0;
         } else if (_active == false) { // delta <= 60
           _activeCounter++;
 
           if (_activeCounter == 50) {
-            _hiddenVideo = true;
+            _active = true;
             _activeCounter = 0;
           }
         }
